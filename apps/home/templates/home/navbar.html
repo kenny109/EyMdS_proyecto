@@ -1,0 +1,34 @@
+{% load static %}
+
+<!-- Responsive navbar-->
+<nav class="navbar navbar-expand-lg navbar-dark bg-black">
+    <div class="container px-5 ">
+        <a class="navbar-brand text-warning" href="#!">Almacén Los Tios</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span
+                class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item text-center"><a class="nav-link text-light" aria-current="page" href="{% url 'Home:home' %}">Inicio</a></li>
+                <li class="nav-item text-center"><a class="nav-link text-light" href="{% url 'productos:index' %}">Productos</a></li>
+                <li class="nav-item text-center"><a class="nav-link text-light" href="{% url 'usuarios:home' %}">Portal Usuarios</a></li>
+                {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                        <li class="nav-item"></li><a href="{% url 'productos:categoria_create' %}" class="nav-link text-light text-center">Crear Categorias</a></li>                     
+                        <li class="nav-item"></li><a href="{% url 'productos:categoria_list' %}" class="nav-link text-light text-center">Listar Categorias</a></li>
+                        <li class="nav-item"></li><a href="{% url 'productos:productos_create' %}" class="nav-link text-light text-center">Crear Productos</a></li>                     
+                        <li class="nav-item"></li><a href="{% url 'productos:productos_list' %}" class="nav-link text-light text-center">Listar Productos</a></li>
+                    {% endif %}
+                    <li class="nav-item text-center"><a class="nav-link text-light"> | </a></li>
+                    {% if user.vendedor.avatar.url %}
+                        <li class="nav-item text-center">
+                            <img src="{{user.vendedor.avatar.url}}" alt="" style="height: 30px;"></img>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item text-center"><a class="nav-link text-warning" href="#!">{{user.username}}</a></li>
+                    <li class="nav-item text-center"><a class="nav-link text-light" href="{% url 'Home:logout' %}">Cerrar Sesión</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

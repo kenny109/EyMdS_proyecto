@@ -1,0 +1,50 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almacen Los Tios ~ Los mejores productos</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="{% static 'Home/assets/favicon.png' %}" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="{% static 'Home/css/styles.css' %}" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+</head>
+<body class="row fondo font-roboto">
+    <style> 
+        .fondo{
+            background-image: linear-gradient(to right bottom, #dee3ea, #c4d3d8, #aec3c0, #a0b1a4, #9b9d89);
+        }
+        .font-roboto{
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+    <!-- Responsive navbar-->
+    {% include 'Home/navbar.html' %}
+
+    <div class="text-center text-bg-dark text-warning ">
+    {% block TITULO %}
+        
+    {% endblock TITULO %}
+    </div>
+
+    <div>
+        {% block BODY %}
+
+        {% endblock BODY %}
+    </div>
+        <!-- Footer-->
+        {% include 'Home/footer.html' %}
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="{% static 'Home/js/scripts.js' %}"></script>
+
+</body>
+</html>

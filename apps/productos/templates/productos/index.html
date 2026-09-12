@@ -1,0 +1,80 @@
+{% extends 'Home/base.html' %}
+
+{% block TITULO %}
+<h1>Productos</h1>
+{% endblock TITULO %}
+{% block BODY %}
+    <div class="row justify-content-center">
+            {% for producto in productos %}
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                {% include 'Home/card.html' with card=producto.nombre card_precio=producto.precio card_categoria=producto.categoria card_imagen=producto.imagen.url %}
+            </div>
+            {% endfor %}
+    </div>
+
+    <div class="w-75 mx-auto">
+        <div class="alert alert-primary text-center" role="alert">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="row" colspan="4" class="text-center">CARRITO</th>
+                    </tr>
+                    <tr>
+                        <th scope="col">NOMBRE</th>
+                        <th scope="col">PRECIO</th>
+                        <th scope="col">CANTIDAD</th>
+                        <th scope="col">SUBTOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if request.session.carrito.items %}
+                    {% for key, value in request.session.carrito.items %}
+                    <tr>
+                        <td>{{ value.nombre }}</td>
+                        <td>$ {{ value.precio }}</td>
+                        <td>
+                            <a href="{% url 'carrito:agregar_producto' value.producto_id %}"
+                                class="badge btn btn-primary badge-dark">+</a>
+                            {{ value.cantidad }}
+                            <a href="{% url 'carrito:restar_producto' value.producto_id %}"
+                                class="badge btn btn-danger badge-dark">-</a>
+                        </td>
+                        <td>$ {{ value.acumulado }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="alert alert-danger text-center">Sin Productos</div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th scope="row">Total: </th>
+                        <td colspan="3" class="text-center"><strong>$ {{ total_boleta }}</strong></td>
+                        {% if mensaje %}
+                            <h3 class="text-danger ">{{ mensaje }}</h3>
+                            <a href="{%url 'productos:index' %}"><button class="btn btn-primary">Ver Otros Productos</button></a>
+                        {% endif %}
+                    </tr>
+                </tbody>
+            </table>
+            <div class="row text-center">
+                <div class="col-md-6 alert alert-success ">
+                    <a href="{% url 'carrito:limpiar_carrito' %}" class="btn btn-danger btn-block">Vaciar Carrito</a>
+                </div>
+                <div class="col-md-6 alert alert-success text-center">
+                    <form method="post" action="{% url 'carrito:enviar_correo' %}">
+                        {% csrf_token %}
+                        <input type="email" placeholder="Ingresa tu correo" name="correo" required>
+
+                        <div class="g-recaptcha d-flex justify-content-center " data-sitekey="6Lc7-RMpAAAAAFkDWJvme1xDA_kwTnSpTvEeCGFm"></div>
+                        <button type="submit" class="btn btn-success btn-block">Enviar Solicitud</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock BODY %}

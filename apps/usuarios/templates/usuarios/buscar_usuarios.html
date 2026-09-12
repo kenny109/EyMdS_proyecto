@@ -1,0 +1,33 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+
+{% block BODY %}
+    <!-- Buscar Usuarioo -->
+    <form class="text-center " method="post">
+        {% csrf_token %}
+        <input type="text" name="termino_busqueda" placeholder="Busca un usuario...">
+        <button type="submit">Encuéntra el usuario</button>
+        <p></p>
+    </form>
+
+    <!-- Resultado Busqueda -->
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+        {% if usuarios %}
+            {% for usuario in usuarios %}
+              <div class="col-sm-4 col-md-4 col-lg-3 border">
+                <style> .border{border: 1px solid black; border-radius: 15px;}</style>
+                <h3 class="text-center ">{{usuario.nombre}} {{usuario.apellido}}</h3>
+                <h6>Edad: {{usuario.edad}} años</h6>
+                <h6>Correo: {{usuario.correo}}</h6>
+              </div>
+            {% endfor %}
+        {% else %}
+        <p></p>
+        <h3 class="text-center text-danger ">No se encontraron resultados. <br>Favor ingresa un usuario.</h3>
+        {% endif %}
+    </div>
+    <p></p>
+    <a class="text-center" href="{% url 'usuarios:home' %}">Volver atras</a>
+    <a class="text-center" href="{% url 'Home:home' %}">Volver al menú principal</a>
+
+{% endblock BODY %}

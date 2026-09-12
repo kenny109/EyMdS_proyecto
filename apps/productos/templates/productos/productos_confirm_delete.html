@@ -1,0 +1,16 @@
+{% extends 'productos/index.html' %}
+
+{% block BODY %}
+    <h1>Eliminación de Productos</h1>
+
+    <p class="fs-5 fst-italic ">¿Confirma eliminar "{{producto}}"?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger ">Confirmar</button>
+    </form>
+
+    <div class="d-flex justify-content-center ">
+        <button class="btn btn-outline-info "><a class="nav-link text-dark text-center" href="{% url 'productos:productos_list' %}">Volver atrás</a></button>
+    </div>
+{% endblock BODY %}

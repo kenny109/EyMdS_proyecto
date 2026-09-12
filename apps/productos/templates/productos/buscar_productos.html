@@ -1,0 +1,27 @@
+{% extends 'Home/base.html' %}
+
+{% block BODY %}
+    <!-- Buscar Producto -->
+    <form class="text-center " method="post">
+        {% csrf_token %}
+        <input type="text" name="termino_busqueda" placeholder="Buscar tu producto...">
+        <button type="submit">Encuéntrame</button>
+        <p></p>
+    </form>
+
+    <!-- Resultado Busqueda -->
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+        {% if productos %}
+            {% for producto in productos %}
+                {% include 'Home/card.html' with card=producto.nombre card_precio=producto.precio card_categoria=producto.categoria card_imagen=producto.imagen %}
+                {% if producto.imagen %}
+                    <img src="{{producto.imagen.url}}">                    
+                {% endif %}
+            {% endfor %}
+        {% else %}
+        <p></p>
+        <h3 class="text-center text-danger ">No se encontraron resultados. <br>Favor ingresa un producto.</h3>
+        {% endif %}
+    </div>
+  
+{% endblock BODY %}

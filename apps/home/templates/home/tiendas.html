@@ -1,0 +1,58 @@
+{% load static %}
+
+<h1 class="text-center">NUESTRAS TIENDAS</h1>
+<div class="accordion" id="accordionExample">
+    <style> .accordion{ padding: 0px 120px; } </style>
+    <style> .img-fluid{ max-width: 60% }</style>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingOne">
+        <button class="accordion-button bg-dark text-warning" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Tienda Santiago
+        </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <strong>Ubicado en pleno centro de Santiago,</strong> ofrecemos variedad de abarrotes, bebidas, frutas y verduras, lacteos, dulces, entre otros.
+          <p><b>Horarios:</b>
+            <br>Lunes a Viernes: 9:00 a 19:00 hrs
+            <br>Sábados: 10:00 a 18:00 hrs
+            <br>Domingos: 11:00 a 17:00 hrs</p>
+          <img class="img-fluid img-thumbnail rounded mx-auto d-block" src="{% static 'Home/img/local1.png' %}">
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingTwo">
+        <button class="accordion-button collapsed bg-dark text-warning" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Tienda Puerto Montt
+        </button>
+      </h2>
+      <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <strong>Ubicado a pasos del puerto de la ciudad,</strong> ofrecemos variedad de abarrotes, bebidas, frutas y verduras, lacteos, dulces, entre otros.
+          <p><b>Horarios:</b>
+            <br>Lunes a Viernes: 8:30 a 19:00 hrs
+            <br>Sábados: 9:00 a 20:00 hrs
+            <br>Domingos: 10:00 a 17:00 hrs</p>
+          <img class="img-fluid img-thumbnail rounded mx-auto d-block" src="{% static 'Home/img/local2.png' %}">
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingThree">
+        <button class="accordion-button collapsed bg-dark text-warning" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Tienda Viña Del Mar
+        </button>
+      </h2>
+      <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <strong>Ubicado en la costanera, </strong> ofrecemos variedad de abarrotes, bebidas, frutas y verduras, lacteos, dulces, entre otros.
+          <p><b>Horarios:</b>
+            <br>Lunes a Viernes: 8:30 a 22:30 hrs
+            <br>Sábados: 9:30 a 22:00 hrs
+            <br>Domingos: Cerrado</p>
+          <img class="img-fluid img-thumbnail rounded mx-auto d-block" src="{% static 'Home/img/local3.png' %}">
+        </div>
+      </div>
+    </div>
+  </div>

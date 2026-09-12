@@ -1,0 +1,22 @@
+{% extends 'Home/base.html' %}
+
+{% block BODY %}
+    <h1 class="text-center">INGRESA UN NUEVO USUARIO</h1>
+    <!-- Etiqueta Formulario -->
+    <div class="bg-black text-warning formulario text-center ">
+        <style>
+            .formulario{
+                padding: 50px;
+                width: 95%;
+                margin: 25px;
+            }
+        </style>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form.as_p}} 
+            <button class="btn btn-danger" type="submit">Guardar</button>
+    </div>
+
+    <a class="text-center" href="{% url 'usuarios:home' %}">Volver atras</a>
+    <a class="text-center" href="{% url 'Home:home' %}">Volver al menú principal</a>
+{% endblock BODY %}

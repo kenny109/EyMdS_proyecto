@@ -1,0 +1,11 @@
+<div>
+    <div class="card h-100 m-2">
+        <div class="card-body bg-black">
+            <h2 class="card-title text-light">{{card}} </h2>
+            <h6 class="card-text text-warning">{{card_categoria}}</h6>
+            <h3 class="card-text text-warning text-center">${{card_precio}}</h3>
+            <img class="img-fluid img-thumbnail rounded mx-auto d-block" src="{{card_imagen}}" alt="Imagen"></img>
+        </div>
+        <a href="{% url 'carrito:agregar_producto' producto.id %}" class="btn btn-primary">Agregar al carrito</a>
+    </div>
+</div>

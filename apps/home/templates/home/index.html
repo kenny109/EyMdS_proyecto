@@ -1,0 +1,29 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block BODY %}
+    {% if user.is_authenticated %}
+        <h6 class="text-center text-bg-dark text-warning  ">{{mensaje}}</h6>
+    {% endif %}
+
+    {% include 'home/tiendas.html' %}
+    <p></p>
+    {% include 'home/carrusel.html' %}
+
+    <div class="container text-center">
+        <h3>Contactate con nosotros por WhatsApp</h3>
+        <div class="d-flex justify-content-center align-items-center">
+            <a href="https://wa.me/56994901217" target="_blank">
+                <img class="img-fluid whatsapp" src="{% static 'Home/img/wsp.png' %}">
+                <style>.whatsapp{width: 20%;}</style>
+            </a>
+        </div>
+    </div>
+
+    <div class="nav-item text-center">
+        <a class="nav-link text-dark" href="{% url 'Home:about' %}">Por último, aquí puedes saber sobre mí</a>
+    </div>
+    <p></p>
+    <p></p>
+    <p></p>
+{% endblock BODY %}

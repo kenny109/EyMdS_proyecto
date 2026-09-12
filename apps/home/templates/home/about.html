@@ -1,0 +1,41 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+
+
+{% block TITULO %}
+<h1>Sobre Mí</h1>
+{% endblock TITULO %}
+
+{% block BODY %}
+<div>
+    <div class="card w-25 m-2 m-auto">
+        <div class="card-body bg-black">
+            <h2 class="card-title text-light text-center">Eduardo Ureta Campos</h2>
+            <div class="text-center">
+                <h4 class="card-text text-black badge bg-warning">Tengo 29 años</h4>
+                <h4 class="card-text text-light badge bg-primary">Equipo de Fútbol: Universidad de Chile</h4>
+                <h4 class="card-text text-black badge bg-danger">Ing. Computación e Informática</h4>
+                <h4 class="card-text text-black badge bg-success ">UNAB</h4>
+            </div>
+            <div class="text-center">
+                <h4 class="card-text text-black badge bg-light">Desarrollo Web</h4>
+                <h4 class="card-text text-black badge bg-info">JavaScript</h4>
+                <h4 class="card-text text-black badge bg-primary">React JS</h4>
+            </div>
+            <div class="text-center">
+                <h4 class="card-text text-light badge bg-success ">Metodología Ágiles</h4>
+                <h4 class="card-text text-black badge bg-warning">SQL</h4>
+                <h4 class="card-text text-black badge bg-warning">Python</h4>
+                <h4 class="card-text text-black badge bg-danger">Back End JS</h4>
+            </div>
+            <img class="img-fluid img-thumbnail rounded mx-auto d-block" src="{% static '/Home/img/edu.png' %}" alt="Imagen">
+        </div>
+        <div class="card-footer text-end">
+            <a href="{% url 'Home:home' %}" class="btn btn-dark btn-sm">Volver al Home</a>
+        </div>
+        
+    </div>
+</div>
+
+
+{% endblock BODY %}

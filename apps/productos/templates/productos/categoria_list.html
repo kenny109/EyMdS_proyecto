@@ -1,0 +1,33 @@
+{% extends 'productos/index.html' %}
+
+{% block TITULO %}
+    <h1>Lista de Categorías de productos</h1>
+{% endblock TITULO %}
+
+{% block BODY %}
+
+<div class="row justify-content-center">
+    {% if object_list %}
+        {% for categoria in object_list %}
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <div class="card h-100 m-2">
+                    <div class="card-body bg-black">
+                        <h2 class="card-title text-light">{{categoria.nombre}} </h2>
+                        <h6 class="card-text text-warning">{{categoria.descripcion}}</h6>
+                        <img class="img-fluid img-thumbnail rounded mx-auto d-block" src="{{categoria.imagen.url}}" alt="Imagen"></img><br>
+                        <div class="text-center">
+                            <a href="{% url 'productos:categoria_details' categoria.id %}" class="btn btn-success">Ver Detalles</a>
+                            <a href="{% url 'productos:categoria_update' categoria.id %}" class="btn btn-primary">Actualizar</a>
+                            <a href="{% url 'productos:categoria_delete' categoria.id %}" class="btn btn-danger">Eliminar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>no hay elementos</p>
+    {% endif %}
+</div>
+<br>
+
+{% endblock BODY %}

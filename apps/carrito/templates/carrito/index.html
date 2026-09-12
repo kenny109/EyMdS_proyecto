@@ -1,0 +1,31 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+
+{% block TITULO %}
+    CARRITO DE COMPRAS
+{% endblock TITULO %}
+
+{% block BODY %}
+    <h1>Armando un carrito</h1>
+
+    <div class="row">
+        <div class="col-sm-8">  <!-- Columna izquierda, ocupa 8 de 12 columnas -->
+            {% for producto in productos %}
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ producto.nombre }}</h5>
+                        <h5 class="card-text">{{ producto.precio }}</h5>
+                        <img class="img-fluid img-thumbnail rounded mx-auto d-block" src={{ producto.imagen.url }}></img>
+                        <a href="{% url 'carrito:agregar_producto' producto.id %}" class="btn btn-primary">Agregar al carrito</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="col-sm-4">  <!-- Columna derecha, ocupa 4 de 12 columnas -->
+            {% include 'carrito/carrito.html' %}
+        </div>
+    </div>
+{% endblock BODY %}
