@@ -5,6 +5,9 @@ import os
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
 
+# Protección de Datos
+load_dotenv() 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,10 +23,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&rz^j-!sd$819@_(rdb+fh0$skos1r-(0x0p&kx$q7l#2%z*84'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG","False") == "True"
 
 ALLOWED_HOSTS = ["proyectotitulo.azurewebsites.net","127.0.0.1"]
 
@@ -140,8 +143,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = '587'
 EMAIL_USE_TLS = True 
 
-# Protección de Datos
-load_dotenv()
+
 
 # Claves Correo
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
