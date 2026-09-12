@@ -1,6 +1,5 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-import pywhatkit as kit
 from datetime import datetime
 
 from productos.models import Productos
