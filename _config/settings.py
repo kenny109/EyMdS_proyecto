@@ -34,12 +34,14 @@ ALLOWED_HOSTS = ["proyectotitulo.azurewebsites.net","127.0.0.1"]
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rangefilter',
     'usuarios',
     'productos',
     'home',
@@ -154,3 +156,12 @@ RECAPTCHA_PUBLIC_KEY = os.getenv("RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = os.getenv("RECAPTCHA_PRIVATE_KEY")
 # Silenciar advertencia de claves reCAPTCHA de prueba (solo desarrollo local)
 SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Almacén Los Tíos",
+    "site_header": "Almacén Los Tíos",
+    "site_brand": "Almacén Los Tíos",
+    "welcome_sign": "Panel administrativo",
+    "show_ui_builder": False,
+    "order_with_respect_to": ["productos", "venta", "usuarios"],
+}
