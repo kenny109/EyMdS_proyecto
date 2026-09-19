@@ -3,27 +3,25 @@
 
 {% block BODY %}
     {% if user.is_authenticated %}
-        <h6 class="text-center text-bg-dark text-warning  ">{{mensaje}}</h6>
+        <div class="text-center py-2 bg-dark text-warning">
+            <p class="mb-0">{{ mensaje }}</p>
+        </div>
     {% endif %}
 
     {% include 'home/tiendas.html' %}
-    <p></p>
     {% include 'home/carrusel.html' %}
 
-    <div class="container text-center">
-        <h3>Contactate con nosotros por WhatsApp</h3>
-        <div class="d-flex justify-content-center align-items-center">
-            <a href="https://wa.me/56994901217" target="_blank">
-                <img class="img-fluid whatsapp" src="{% static 'Home/img/wsp.png' %}">
-                <style>.whatsapp{width: 20%;}</style>
-            </a>
-        </div>
+    <div class="container text-center py-5">
+        <h3 class="mb-4">Contáctate con nosotros por WhatsApp</h3>
+        <a href="https://wa.me/56994901217" target="_blank" class="btn btn-success btn-lg d-inline-flex align-items-center gap-2 px-4 py-3 shadow-sm rounded-pill">
+            <img src="{% static 'Home/img/wsp.png' %}" alt="WhatsApp" style="width: 32px; height: 32px;">
+            Escríbenos ahora
+        </a>
     </div>
 
-    <div class="nav-item text-center">
-        <a class="nav-link text-dark" href="{% url 'Home:about' %}">Por último, aquí puedes saber sobre mí</a>
+    <div class="container text-center pb-5">
+        <a class="btn btn-outline-dark rounded-pill px-4" href="{% url 'Home:about' %}">
+            <i class="bi bi-info-circle"></i> Conoce más sobre nosotros
+        </a>
     </div>
-    <p></p>
-    <p></p>
-    <p></p>
 {% endblock BODY %}
