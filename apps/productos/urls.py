@@ -3,15 +3,13 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from django.views.generic import TemplateView
-
 from . import views
 
 app_name = "productos"
 
 urlpatterns = [
     path("", views.index, name="index"),
-    # path("", TemplateView.as_view(template_name="productos/index.html"), name="home"),
+    path("ver/<int:pk>/", views.producto_publico, name="producto_publico"),
 
     path("ingresar_productos", views.ingreso_productos, name="ingresar_productos"),
     path('buscar_productos/', views.buscar_productos, name='buscar_productos'),

@@ -1,80 +1,86 @@
-{% extends 'Home/base.html' %}
+{% extends 'home/base.html' %}
+{% load formato %}
+
+{% block HEAD_TITLE %}Catálogo · Almacén Los Tíos{% endblock HEAD_TITLE %}
 
 {% block TITULO %}
-<h1>Productos</h1>
+<h1>{% if categoria_activa %}{{ categoria_activa.nombre }}{% else %}Catálogo de productos{% endif %}</h1>
+<p>{% if categoria_activa and categoria_activa.descripcion %}{{ categoria_activa.descripcion }}{% else %}Elige tus productos y resérvalos para retirar en tienda{% endif %}</p>
 {% endblock TITULO %}
+
 {% block BODY %}
-    <div class="row justify-content-center">
-            {% for producto in productos %}
-            <div class="col-sm-6 col-md-4 col-lg-3">
-                {% include 'Home/card.html' with card=producto.nombre card_precio=producto.precio card_categoria=producto.categoria card_imagen=producto.imagen.url %}
+<div class="container pb-5">
+    <!-- Barra de búsqueda y filtros (MR-114) -->
+    <div class="lt-toolbar mb-4">
+        <form method="get" action="{% url 'productos:index' %}" class="row g-2 align-items-center" role="search">
+            {% if categoria_activa %}<input type="hidden" name="categoria" value="{{ categoria_activa.id }}">{% endif %}
+            <div class="col-lg-6">
+                <div class="input-group lt-search">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="search" name="q" value="{{ consulta }}" class="form-control border-start-0" placeholder="Buscar por producto o categoría..." aria-label="Buscar productos">
+                    <button class="btn btn-lt-dark px-4" type="submit">Buscar</button>
+                </div>
             </div>
+            <div class="col-lg-6 text-lg-end text-muted small">
+                {{ total_resultados }} producto{{ total_resultados|pluralize }}
+                {% if consulta %} para «<strong class="text-dark">{{ consulta }}</strong>»{% endif %}
+                {% if consulta or categoria_activa %}
+                    · <a href="{% url 'productos:index' %}" class="text-dark fw-semibold">Limpiar filtros</a>
+                {% endif %}
+            </div>
+        </form>
+        <div class="lt-chips mt-3" aria-label="Filtrar por categoría">
+            <a href="{% url 'productos:index' %}{% if consulta %}?q={{ consulta|urlencode }}{% endif %}" class="lt-chip {% if not categoria_activa %}active{% endif %}">Todas</a>
+            {% for categoria in categorias %}
+            <a href="?categoria={{ categoria.id }}{% if consulta %}&q={{ consulta|urlencode }}{% endif %}" class="lt-chip {% if categoria_activa and categoria_activa.id == categoria.id %}active{% endif %}">{{ categoria.nombre }}</a>
             {% endfor %}
-    </div>
-
-    <div class="w-75 mx-auto">
-        <div class="alert alert-primary text-center" role="alert">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th scope="row" colspan="4" class="text-center">CARRITO</th>
-                    </tr>
-                    <tr>
-                        <th scope="col">NOMBRE</th>
-                        <th scope="col">PRECIO</th>
-                        <th scope="col">CANTIDAD</th>
-                        <th scope="col">SUBTOTAL</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if request.session.carrito.items %}
-                    {% for key, value in request.session.carrito.items %}
-                    <tr>
-                        <td>{{ value.nombre }}</td>
-                        <td>$ {{ value.precio }}</td>
-                        <td>
-                            <a href="{% url 'carrito:agregar_producto' value.producto_id %}"
-                                class="badge btn btn-primary badge-dark">+</a>
-                            {{ value.cantidad }}
-                            <a href="{% url 'carrito:restar_producto' value.producto_id %}"
-                                class="badge btn btn-danger badge-dark">-</a>
-                        </td>
-                        <td>$ {{ value.acumulado }}</td>
-                    </tr>
-                    {% endfor %}
-                    {% else %}
-                    <tr>
-                        <td colspan="4">
-                            <div class="alert alert-danger text-center">Sin Productos</div>
-                        </td>
-                    </tr>
-                    {% endif %}
-                    <tr>
-                        <th scope="row">Total: </th>
-                        <td colspan="3" class="text-center"><strong>$ {{ total_boleta }}</strong></td>
-                        {% if mensaje %}
-                            <h3 class="text-danger ">{{ mensaje }}</h3>
-                            <a href="{%url 'productos:index' %}"><button class="btn btn-primary">Ver Otros Productos</button></a>
-                        {% endif %}
-                    </tr>
-                </tbody>
-            </table>
-            <div class="row text-center">
-                <div class="col-md-6 alert alert-success ">
-                    <a href="{% url 'carrito:limpiar_carrito' %}" class="btn btn-danger btn-block">Vaciar Carrito</a>
-                </div>
-                <div class="col-md-6 alert alert-success text-center">
-                    <form method="post" action="{% url 'carrito:enviar_correo' %}">
-                        {% csrf_token %}
-                        <input type="email" placeholder="Ingresa tu correo" name="correo" required>
-
-                        <div class="g-recaptcha d-flex justify-content-center " data-sitekey="6Lc7-RMpAAAAAFkDWJvme1xDA_kwTnSpTvEeCGFm"></div>
-                        <button type="submit" class="btn btn-success btn-block">Enviar Solicitud</button>
-                    </form>
-                </div>
-            </div>
         </div>
     </div>
 
+    <!-- Grilla de productos -->
+    {% if productos %}
+    <div class="row g-3 g-md-4">
+        {% for producto in productos %}
+        <div class="col-6 col-md-4 col-lg-3">
+            {% include 'home/card.html' with producto=producto %}
+        </div>
+        {% endfor %}
+    </div>
 
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-5" aria-label="Paginación del catálogo">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?{% if query_sin_pagina %}{{ query_sin_pagina }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Anterior"><i class="bi bi-chevron-left"></i></a></li>
+            {% endif %}
+            {% for n in page_obj.paginator.page_range %}
+            <li class="page-item {% if n == page_obj.number %}active{% endif %}"><a class="page-link" href="?{% if query_sin_pagina %}{{ query_sin_pagina }}&{% endif %}page={{ n }}">{{ n }}</a></li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?{% if query_sin_pagina %}{{ query_sin_pagina }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Siguiente"><i class="bi bi-chevron-right"></i></a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="lt-panel lt-empty">
+        <i class="bi bi-search"></i>
+        <h4 class="mt-3 fw-bold">No encontramos productos</h4>
+        <p class="text-muted">Prueba con otra palabra o revisa todas las categorías.</p>
+        <a href="{% url 'productos:index' %}" class="btn btn-lt btn-pill px-4">Ver todo el catálogo</a>
+    </div>
+    {% endif %}
+
+    <!-- Acceso rápido al carrito -->
+    {% if cantidad_items %}
+    <div class="lt-panel mt-5 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+        <div>
+            <strong>Tienes {{ cantidad_items }} producto{{ cantidad_items|pluralize }} en tu carrito</strong>
+            <span class="text-muted">· Total ${{ total_boleta|pesos }}</span>
+        </div>
+        <a href="{% url 'carrito:index' %}" class="btn btn-lt-dark btn-pill px-4"><i class="bi bi-cart-check"></i> Ir a reservar</a>
+    </div>
+    {% endif %}
+</div>
 {% endblock BODY %}
