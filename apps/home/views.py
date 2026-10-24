@@ -1,39 +1,57 @@
+from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import login
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.contrib.auth import login, logout, authenticate
+from django.shortcuts import redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
+
+from productos.models import Categoria, Productos
 
 from . import forms
 
-# Create your views here.
-def home(request): 
-    return render(request, "home/index.html")  
 
-### Login
+def home(request: HttpRequest) -> HttpResponse:
+    """Página de inicio (MR-113): categorías y productos destacados desde la BD."""
+    contexto = {
+        "categorias": Categoria.objects.order_by("nombre"),
+        "destacados": Productos.objects.select_related("categoria")
+        .filter(cantidad__gt=0)
+        .order_by("-fecha_ingreso", "-id")[:4],
+    }
+    return render(request, "home/index.html", contexto)
+
+
+### Login (MR-111: patrón Post/Redirect/Get + mensajes, rutas en minúscula)
 def login_request(request: HttpRequest) -> HttpResponse:
-    if request.method == "POST":
-        form = forms.CustomAuthenticationForm(request, request.POST)
-        if form.is_valid():
-            usuario = form.cleaned_data.get("username")
-            contraseña = form.cleaned_data.get("password")
-            user = authenticate(username=usuario, password=contraseña)
-            if user is not None:
-                login(request, user)
-                return render(request, "Home/index.html", {"mensaje": "Inicio de sesión correcto"})
-    else:
-        form = forms.CustomAuthenticationForm()
-    return render(request, "home/login.html", {"form":form})
+    if request.user.is_authenticated:
+        return redirect("Home:home")
 
-### Registro
-from django.contrib.admin.views.decorators import staff_member_required
+    siguiente = request.POST.get("next") or request.GET.get("next") or ""
+    if request.method == "POST":
+        form = forms.CustomAuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, f"¡Hola, {user.username}! Iniciaste sesión correctamente.")
+            if siguiente and url_has_allowed_host_and_scheme(
+                siguiente, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+            ):
+                return redirect(siguiente)
+            return redirect("Home:home")
+    else:
+        form = forms.CustomAuthenticationForm(request)
+    return render(request, "home/login.html", {"form": form, "next": siguiente})
+
+
+### Registro (solo personal)
 @staff_member_required
 def register(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = forms.CustomUserCreationForm(request.POST)
         if form.is_valid():
-            usuario = form.cleaned_data.get("username")
-            form.save()
-            return render(request, "Home/index.html", {"mensaje": "Registro de Usuario exitoso"})
+            usuario = form.save()
+            messages.success(request, f"Usuario «{usuario.username}» registrado correctamente.")
+            return redirect("Home:register")
     else:
         form = forms.CustomUserCreationForm()
-    return render(request, "home/register.html", {"form":form})
+    return render(request, "home/register.html", {"form": form})

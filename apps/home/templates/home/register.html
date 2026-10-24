@@ -1,47 +1,28 @@
-{% extends 'Home/base.html' %}
+{% extends 'home/base.html' %}
 
-{% block TITULO %}
-    <h1>Registro de Usuario</h1>
-{% endblock TITULO %}
+{% block HEAD_TITLE %}Registrar usuario · Almacén Los Tíos{% endblock HEAD_TITLE %}
 
 {% block BODY %}
-    <form method="post" class="formulario">
-        {% csrf_token %}
-        {{form.as_p}}
+<div class="container lt-auth">
+    <div class="lt-auth-card">
+        <div class="lt-auth-icon"><i class="bi bi-person-plus"></i></div>
+        <h1 class="h3 text-center fw-bold mb-1">Registrar usuario</h1>
+        <p class="text-center text-muted mb-4">Crea una cuenta para un nuevo integrante del equipo</p>
 
-        <button class="btn btn-success" type="submit">Registrar Usuario</button>
-    </form>
-    <style>
-        .formulario {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        .btn:hover {
-            background-color: #45a049;
-        }
-    </style>
-    <br>
-    
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                {% if field.help_text and not field.errors %}
+                <details class="form-text mt-1"><summary>Requisitos</summary>{{ field.help_text|safe }}</details>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button class="btn btn-lt btn-lg w-100 mt-2" type="submit">Registrar usuario</button>
+        </form>
+    </div>
+</div>
 {% endblock BODY %}

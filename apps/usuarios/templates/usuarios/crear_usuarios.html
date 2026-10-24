@@ -1,4 +1,4 @@
-{% extends 'Home/base.html' %}
+{% extends 'home/base.html' %}
 
 {% block BODY %}
     <h1 class="text-center">INGRESA UN NUEVO USUARIO</h1>
@@ -15,6 +15,7 @@
             {% csrf_token %}
             {{form.as_p}} 
             <button class="btn btn-danger" type="submit">Guardar</button>
+        </form>
     </div>
 
     <a class="text-center" href="{% url 'usuarios:home' %}">Volver atras</a>

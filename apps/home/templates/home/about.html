@@ -1,41 +1,37 @@
-{% extends 'Home/base.html' %}
+{% extends 'home/base.html' %}
 {% load static %}
 
+{% block HEAD_TITLE %}Nosotros · Almacén Los Tíos{% endblock HEAD_TITLE %}
 
 {% block TITULO %}
-<h1>Sobre Mí</h1>
+<h1>Sobre nosotros</h1>
+<p>El proyecto detrás de Almacén Los Tíos</p>
 {% endblock TITULO %}
 
 {% block BODY %}
-<div>
-    <div class="card w-25 m-2 m-auto">
-        <div class="card-body bg-black">
-            <h2 class="card-title text-light text-center">Eduardo Ureta Campos</h2>
-            <div class="text-center">
-                <h4 class="card-text text-black badge bg-warning">Tengo 29 años</h4>
-                <h4 class="card-text text-light badge bg-primary">Equipo de Fútbol: Universidad de Chile</h4>
-                <h4 class="card-text text-black badge bg-danger">Ing. Computación e Informática</h4>
-                <h4 class="card-text text-black badge bg-success ">UNAB</h4>
+<div class="container py-5">
+    <div class="lt-panel mx-auto" style="max-width: 760px;">
+        <div class="row g-4 align-items-center">
+            <div class="col-md-4 text-center">
+                <img class="img-fluid rounded-4" src="{% static 'Home/img/edu.png' %}" alt="Eduardo Ureta Campos">
             </div>
-            <div class="text-center">
-                <h4 class="card-text text-black badge bg-light">Desarrollo Web</h4>
-                <h4 class="card-text text-black badge bg-info">JavaScript</h4>
-                <h4 class="card-text text-black badge bg-primary">React JS</h4>
+            <div class="col-md-8">
+                <h2 class="h3 fw-bold mb-1">Eduardo Ureta Campos</h2>
+                <p class="text-muted">Ingeniería en Computación e Informática · UNAB</p>
+                <p>Almacén Los Tíos nació como proyecto de título: un sitio para gestionar el inventario de un minimarket, alertar cuando un producto llega a su stock mínimo y permitir que los clientes reserven sus compras en línea.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge rounded-pill text-bg-dark">Python</span>
+                    <span class="badge rounded-pill text-bg-dark">Django</span>
+                    <span class="badge rounded-pill text-bg-dark">JavaScript</span>
+                    <span class="badge rounded-pill text-bg-dark">React JS</span>
+                    <span class="badge rounded-pill text-bg-dark">SQL</span>
+                    <span class="badge rounded-pill text-bg-warning">Metodologías ágiles</span>
+                </div>
             </div>
-            <div class="text-center">
-                <h4 class="card-text text-light badge bg-success ">Metodología Ágiles</h4>
-                <h4 class="card-text text-black badge bg-warning">SQL</h4>
-                <h4 class="card-text text-black badge bg-warning">Python</h4>
-                <h4 class="card-text text-black badge bg-danger">Back End JS</h4>
-            </div>
-            <img class="img-fluid img-thumbnail rounded mx-auto d-block" src="{% static '/Home/img/edu.png' %}" alt="Imagen">
         </div>
-        <div class="card-footer text-end">
-            <a href="{% url 'Home:home' %}" class="btn btn-dark btn-sm">Volver al Home</a>
-        </div>
-        
+    </div>
+    <div class="text-center mt-4">
+        <a href="{% url 'Home:home' %}" class="btn btn-outline-dark btn-pill px-4"><i class="bi bi-arrow-left"></i> Volver al inicio</a>
     </div>
 </div>
-
-
 {% endblock BODY %}
