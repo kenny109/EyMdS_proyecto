@@ -59,5 +59,6 @@ class VentaProducto(models.Model):
         else: 
             self.producto.cantidad -= self.cantidad
             self.producto.save()
-            if self.producto.cantidad <= self.producto.umbral_minimo:
+            umbral = self.producto.umbral_minimo
+            if umbral is not None and self.producto.cantidad <= umbral:
                 enviar_notificacion_stock_bajo(self.producto)

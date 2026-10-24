@@ -6,8 +6,10 @@
 
 # PARA INGRESAR
     - Descarga el repositorio.
-    - instala los requirements.txt 
+    - Copia .env.example como .env y completa las claves (SECRET_KEY es obligatoria).
+    - instala los requirements.txt: pip install -r requirements.txt
     - Para iniciar, el comando es python manage.py runserver
+    - Para correr las pruebas: python manage.py test carrito productos home
     - INICIO: http://127.0.0.1:8000/home/
     - Puedes navegar por todas las pestañas
 
@@ -92,3 +94,25 @@
 
 **Notas Finales:**
 Esta versión introduce un sitio web funcional con visualización de productos y categorías desde la base de datos. Además, facilita a los usuarios la reserva de pedidos con un carrito que muestra los totales. Se ha reforzado la seguridad con la verificación mediante reCaptcha y se implementa la alerta automática cuando un producto desciende por debajo o iguala el umbral mínimo. En versiones futuras, se planea mejorar las vistas y agregar la gestión de usuarios, así como la integración de portales de pagos para una experiencia más completa y versátil.
+
+---
+
+### Release Notes - Versión 2.0.0
+
+#### Fecha de Lanzamiento: Octubre de 2026 (proyecto de Evolución y Mantenimiento de Software)
+
+**Plataforma y dependencias (MR-101 a MR-106):**
+- Migración a Django 5.x compatible con Python 3.13 y depuración de `requirements.txt`.
+- SECRET_KEY, DEBUG y credenciales leídas desde `.env` (ver `.env.example`).
+- Pruebas unitarias del carrito.
+
+**Panel de administración e interfaces (MR-107 a MR-109):**
+- Tema Jazzmin, filtros reordenados y filtro de rango de precios.
+- Rediseño de las interfaces públicas.
+
+**Correcciones y mejoras (MR-110 a MR-114):**
+- **MR-110 (Correctiva):** el CRUD de productos y categorías y el portal de usuarios quedan restringidos al personal (`is_staff`).
+- **MR-111 (Adaptativa):** cierre de sesión por POST (Django 5), rutas de plantillas en minúscula para servidores Linux, login con redirección y `STATIC_ROOT`.
+- **MR-112 (Correctiva):** verificación real de reCAPTCHA, remitente de correo de la tienda, revalidación de stock al reservar y manejo de errores 404.
+- **MR-113 (Perfectiva):** nueva navegación con contador del carrito, página de inicio con categorías y destacados, footer informativo.
+- **MR-114 (Perfectiva):** catálogo con búsqueda, filtro por categoría, paginación, indicadores de stock y ficha pública de producto.
