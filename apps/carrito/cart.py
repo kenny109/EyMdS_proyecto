@@ -1,9 +1,3 @@
-from django.http import HttpResponse
-from django.shortcuts import render
-from datetime import datetime
-
-from productos.models import Productos
-
 class Carrito:
     def __init__(self, request):
         self.request = request
@@ -18,6 +12,9 @@ class Carrito:
     def agregar_prod(self, Productos):
         id = str(Productos.id)
         if id not in self.carrito:
+            # MR-112: no se agrega un producto sin stock
+            if Productos.cantidad < 1:
+                return "No hay mas stock de este producto."
             self.carrito[id] = {
                 "producto_id": Productos.id,
                 "nombre": Productos.nombre,
