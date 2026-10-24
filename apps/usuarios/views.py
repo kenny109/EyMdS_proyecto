@@ -1,16 +1,20 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
+from home.permissions import staff_required
+
 from .forms import UsuarioForm
 from .models import Usuario
 # Create your views here.
 
+@staff_required
 def home(request):
     usuarios_registrados = Usuario.objects.all()
     contexto = {"usuarios": usuarios_registrados}
     return render(request, "usuarios/index.html", contexto)
 
 ####### Formulario Crear Usuarios###
+@staff_required
 def crear_usuarios(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = UsuarioForm(request.POST)
@@ -22,6 +26,7 @@ def crear_usuarios(request: HttpRequest) -> HttpResponse:
     return render(request, "usuarios/crear_usuarios.html", {"form": form})
 
 ####### Busqueda de Usuarios ####
+@staff_required
 def buscar_usuarios(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST':
         # Obtener el término de búsqueda del formulario

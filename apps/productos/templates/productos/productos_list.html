@@ -1,7 +1,9 @@
-{% extends 'productos/index.html' %}
+{% extends 'home/base.html' %}
+{% load static %}
 
 {% block TITULO %}
-    <h1 class="py-3">Catálogo de productos</h1>
+    <h1>Gestión de productos</h1>
+    <p>Listado interno con stock, edición y eliminación</p>
 {% endblock TITULO %}
 
 {% block BODY %}
@@ -13,6 +15,11 @@
         <div class="col-md-2">
             <button type="submit" class="btn btn-warning w-100"><i class="bi bi-search"></i> Buscar</button>
         </div>
+        {% if user.is_staff %}
+        <div class="col-md-2">
+            <a href="{% url 'productos:productos_create' %}" class="btn btn-dark w-100"><i class="bi bi-plus-lg"></i> Nuevo</a>
+        </div>
+        {% endif %}
     </form>
 
     {% if object_list %}
@@ -20,16 +27,18 @@
         {% for object in object_list %}
         <div class="col-sm-6 col-md-4 col-lg-3">
             <div class="card h-100 shadow-sm border-0">
-                <img src="{{ object.imagen.url }}" class="card-img-top" alt="{{ object.nombre }}" style="height:180px; object-fit:cover;">
+                <img src="{% if object.imagen %}{{ object.imagen.url }}{% else %}{% static 'Home/img/sinfoto.png' %}{% endif %}" class="card-img-top" alt="{{ object.nombre }}" style="height:180px; object-fit:cover;">
                 <div class="card-body">
                     <h5 class="card-title">{{ object.nombre }}</h5>
-                    <p class="text-muted mb-1">{{ object.categoria }}</p>
+                    <p class="text-muted mb-1">{{ object.categoria }} · Stock: {{ object.cantidad }}</p>
                     <p class="fs-4 fw-bold text-success">${{ object.precio }}</p>
                 </div>
                 <div class="card-footer bg-white border-0 d-flex justify-content-between">
                     <a href="{% url 'productos:productos_details' object.id %}" class="btn btn-sm btn-outline-success"><i class="bi bi-eye"></i></a>
-                    <a href="{% url 'productos:productos_update' object.id %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                    <a href="{% url 'productos:productos_delete' object.id %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                    {% if user.is_staff %}
+                    <a href="{% url 'productos:productos_update' object.id %}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
+                    <a href="{% url 'productos:productos_delete' object.id %}" class="btn btn-sm btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+                    {% endif %}
                 </div>
             </div>
         </div>
