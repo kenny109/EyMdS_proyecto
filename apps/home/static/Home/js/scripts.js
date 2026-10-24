@@ -5,3 +5,11 @@
 */
 // This file is intentionally blank
 // Use this file to add JavaScript to your project
+// Cierra automáticamente los mensajes flotantes después de 5 segundos (MR-113)
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.lt-messages .alert').forEach(function (alerta) {
+        setTimeout(function () {
+            if (window.bootstrap) { bootstrap.Alert.getOrCreateInstance(alerta).close(); }
+        }, 5000);
+    });
+});

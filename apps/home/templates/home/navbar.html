@@ -1,34 +1,69 @@
 {% load static %}
+{% with ruta=request.resolver_match.view_name %}
+<nav class="navbar navbar-expand-lg navbar-dark lt-navbar sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'Home:home' %}">
+            <span class="lt-brand-mark"><i class="bi bi-basket2-fill"></i></span>
+            <span class="lt-brand-text">Almacén Los Tíos</span>
+        </a>
 
-<!-- Responsive navbar-->
-<nav class="navbar navbar-expand-lg navbar-dark bg-black">
-    <div class="container px-5 ">
-        <a class="navbar-brand text-warning" href="#!">Almacén Los Tios</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span
-                class="navbar-toggler-icon"></span></button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item text-center"><a class="nav-link text-light" aria-current="page" href="{% url 'Home:home' %}">Inicio</a></li>
-                <li class="nav-item text-center"><a class="nav-link text-light" href="{% url 'productos:index' %}">Productos</a></li>
-                <li class="nav-item text-center"><a class="nav-link text-light" href="{% url 'usuarios:home' %}">Portal Usuarios</a></li>
-                {% if user.is_authenticated %}
+        <div class="d-flex align-items-center gap-1 gap-sm-2 order-lg-last ms-auto ms-lg-0">
+            <!-- Carrito con contador -->
+            <a class="btn btn-link nav-link text-white lt-cart-btn px-2" href="{% url 'carrito:index' %}" aria-label="Ver carrito ({{ cantidad_items }} productos)">
+                <i class="bi bi-cart3 fs-5"></i>
+                {% if cantidad_items %}<span class="lt-cart-badge">{{ cantidad_items }}</span>{% endif %}
+            </a>
+
+            {% if user.is_authenticated %}
+            <div class="dropdown">
+                <button class="btn btn-link nav-link text-white d-flex align-items-center gap-2 px-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% if user.vendedor and user.vendedor.avatar %}
+                        <img src="{{ user.vendedor.avatar.url }}" alt="" class="lt-avatar">
+                    {% else %}
+                        <span class="lt-avatar-fallback">{{ user.username|slice:":1" }}</span>
+                    {% endif %}
+                    <span class="d-none d-sm-inline">{{ user.username }}</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
                     {% if user.is_staff %}
-                        <li class="nav-item"></li><a href="{% url 'productos:categoria_create' %}" class="nav-link text-light text-center">Crear Categorias</a></li>                     
-                        <li class="nav-item"></li><a href="{% url 'productos:categoria_list' %}" class="nav-link text-light text-center">Listar Categorias</a></li>
-                        <li class="nav-item"></li><a href="{% url 'productos:productos_create' %}" class="nav-link text-light text-center">Crear Productos</a></li>                     
-                        <li class="nav-item"></li><a href="{% url 'productos:productos_list' %}" class="nav-link text-light text-center">Listar Productos</a></li>
+                    <li><h6 class="dropdown-header">Administración</h6></li>
+                    <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bi bi-speedometer2"></i> Panel de administración</a></li>
+                    <li><a class="dropdown-item" href="{% url 'productos:productos_list' %}"><i class="bi bi-box-seam"></i> Gestionar productos</a></li>
+                    <li><a class="dropdown-item" href="{% url 'productos:productos_create' %}"><i class="bi bi-plus-square"></i> Crear producto</a></li>
+                    <li><a class="dropdown-item" href="{% url 'productos:categoria_list' %}"><i class="bi bi-tags"></i> Gestionar categorías</a></li>
+                    <li><a class="dropdown-item" href="{% url 'productos:categoria_create' %}"><i class="bi bi-plus-circle"></i> Crear categoría</a></li>
+                    <li><a class="dropdown-item" href="{% url 'usuarios:home' %}"><i class="bi bi-people"></i> Portal de usuarios</a></li>
+                    <li><a class="dropdown-item" href="{% url 'Home:register' %}"><i class="bi bi-person-plus"></i> Registrar usuario</a></li>
+                    <li><hr class="dropdown-divider"></li>
                     {% endif %}
-                    <li class="nav-item text-center"><a class="nav-link text-light"> | </a></li>
-                    {% if user.vendedor.avatar.url %}
-                        <li class="nav-item text-center">
-                            <img src="{{user.vendedor.avatar.url}}" alt="" style="height: 30px;"></img>
-                        </li>
-                    {% endif %}
-                    <li class="nav-item text-center"><a class="nav-link text-warning" href="#!">{{user.username}}</a></li>
-                    <li class="nav-item text-center"><a class="nav-link text-light" href="{% url 'Home:logout' %}">Cerrar Sesión</a></li>
-                {% endif %}
+                    <li>
+                        <!-- Django 5: el cierre de sesión debe enviarse por POST (MR-111) -->
+                        <form method="post" action="{% url 'Home:logout' %}" class="m-0">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right text-danger"></i> Cerrar sesión</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            {% else %}
+            <a class="btn btn-lt btn-sm px-3 d-none d-sm-inline-block" href="{% url 'Home:login' %}"><i class="bi bi-person"></i> Iniciar sesión</a>
+            <a class="btn btn-link nav-link text-white px-2 d-sm-none" href="{% url 'Home:login' %}" aria-label="Iniciar sesión"><i class="bi bi-person fs-5"></i></a>
+            {% endif %}
+
+            <button class="navbar-toggler border-0 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Abrir menú">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1">
+                <li class="nav-item"><a class="nav-link {% if ruta == 'Home:home' %}active{% endif %}" href="{% url 'Home:home' %}">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link {% if ruta == 'productos:index' or ruta == 'productos:producto_publico' %}active{% endif %}" href="{% url 'productos:index' %}">Catálogo</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'Home:home' %}#tiendas">Tiendas</a></li>
+                <li class="nav-item"><a class="nav-link {% if ruta == 'Home:about' %}active{% endif %}" href="{% url 'Home:about' %}">Nosotros</a></li>
             </ul>
         </div>
     </div>
 </nav>
+{% endwith %}

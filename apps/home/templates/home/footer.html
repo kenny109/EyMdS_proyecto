@@ -1,3 +1,42 @@
-<footer class="py45 bg-dark">
-    <div class="container px-4 px-lg-5"><p class="m-0 text-center text-warning">Eduardo Ureta</p></div>
+{% load static %}
+<footer class="lt-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="lt-brand-mark"><i class="bi bi-basket2-fill"></i></span>
+                    <strong class="text-white fs-5" style="font-family: 'Poppins', sans-serif;">Almacén Los Tíos</strong>
+                </div>
+                <p class="mb-0">Abarrotes, bebidas, lácteos, frutas y verduras. Reserva en línea y retira en tu tienda más cercana dentro de 24 horas.</p>
+            </div>
+            <div class="col-6 col-lg-2">
+                <h6>Navegación</h6>
+                <ul>
+                    <li><a href="{% url 'Home:home' %}">Inicio</a></li>
+                    <li><a href="{% url 'productos:index' %}">Catálogo</a></li>
+                    <li><a href="{% url 'carrito:index' %}">Mi carrito</a></li>
+                    <li><a href="{% url 'Home:about' %}">Nosotros</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-lg-3">
+                <h6>Tiendas</h6>
+                <ul>
+                    <li><i class="bi bi-geo-alt"></i> Santiago Centro</li>
+                    <li><i class="bi bi-geo-alt"></i> Puerto Montt</li>
+                    <li><i class="bi bi-geo-alt"></i> Viña del Mar</li>
+                </ul>
+            </div>
+            <div class="col-lg-3">
+                <h6>Contacto</h6>
+                <ul>
+                    <li><a href="mailto:minimarket.lostios@gmail.com"><i class="bi bi-envelope"></i> minimarket.lostios@gmail.com</a></li>
+                    <li><a href="https://wa.me/56994901217" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> +56 9 9490 1217</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="lt-footer-bottom d-flex flex-column flex-md-row justify-content-between gap-2">
+            <span>© {% now "Y" %} Almacén Los Tíos. Proyecto original de Eduardo Ureta Campos.</span>
+            <span>Hecho con Django</span>
+        </div>
+    </div>
 </footer>

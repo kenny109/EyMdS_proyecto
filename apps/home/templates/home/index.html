@@ -2,26 +2,136 @@
 {% load static %}
 
 {% block BODY %}
-    {% if user.is_authenticated %}
-        <div class="text-center py-2 bg-dark text-warning">
-            <p class="mb-0">{{ mensaje }}</p>
+<!-- Hero (MR-113) -->
+<section class="lt-hero">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="lt-eyebrow">Minimarket de barrio · Reserva en línea</span>
+                <h1 class="mt-2 mb-3">Tus compras de siempre, <span>listas para retirar</span>.</h1>
+                <p class="lead mb-4">Arma tu carrito, recibe el detalle por correo y pasa a pagar y retirar en tu tienda dentro de las próximas 24 horas.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'productos:index' %}" class="btn btn-lt btn-lg btn-pill px-4"><i class="bi bi-grid"></i> Ver catálogo</a>
+                    <a href="#tiendas" class="btn btn-outline-light btn-lg btn-pill px-4"><i class="bi bi-geo-alt"></i> Nuestras tiendas</a>
+                </div>
+                <div class="lt-hero-stats">
+                    <div><strong>{{ categorias|length }}</strong><span>categorías</span></div>
+                    <div><strong>3</strong><span>tiendas</span></div>
+                    <div><strong>24 h</strong><span>para retirar</span></div>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="lt-hero-card">
+                    <img src="{% static 'Home/img/abarrotes.png' %}" alt="Productos del almacén">
+                </div>
+            </div>
         </div>
-    {% endif %}
-
-    {% include 'home/tiendas.html' %}
-    {% include 'home/carrusel.html' %}
-
-    <div class="container text-center py-5">
-        <h3 class="mb-4">Contáctate con nosotros por WhatsApp</h3>
-        <a href="https://wa.me/56994901217" target="_blank" class="btn btn-success btn-lg d-inline-flex align-items-center gap-2 px-4 py-3 shadow-sm rounded-pill">
-            <img src="{% static 'Home/img/wsp.png' %}" alt="WhatsApp" style="width: 32px; height: 32px;">
-            Escríbenos ahora
-        </a>
     </div>
+</section>
 
-    <div class="container text-center pb-5">
-        <a class="btn btn-outline-dark rounded-pill px-4" href="{% url 'Home:about' %}">
-            <i class="bi bi-info-circle"></i> Conoce más sobre nosotros
-        </a>
+<!-- Categorías -->
+{% if categorias %}
+<section class="lt-section">
+    <div class="container">
+        <div class="lt-section-head">
+            <div>
+                <span class="lt-eyebrow">Explora</span>
+                <h2>Compra por categoría</h2>
+            </div>
+            <a href="{% url 'productos:index' %}" class="btn btn-link text-dark fw-semibold">Ver todo <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-3 g-md-4">
+            {% for categoria in categorias %}
+            <div class="col-6 col-md-4 col-lg">
+                <a class="lt-cat" href="{% url 'productos:index' %}?categoria={{ categoria.id }}">
+                    {% if categoria.imagen %}
+                        <img src="{{ categoria.imagen.url }}" alt="{{ categoria.nombre }}" loading="lazy">
+                    {% else %}
+                        <img src="{% static 'Home/img/sinfoto.png' %}" alt="" loading="lazy">
+                    {% endif %}
+                    <span class="lt-cat-label">
+                        <strong>{{ categoria.nombre }}</strong>
+                        {% if categoria.descripcion %}<small>{{ categoria.descripcion }}</small>{% endif %}
+                    </span>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
     </div>
+</section>
+{% endif %}
+
+<!-- Destacados -->
+{% if destacados %}
+<section class="lt-section pt-0">
+    <div class="container">
+        <div class="lt-section-head">
+            <div>
+                <span class="lt-eyebrow">Recién llegados</span>
+                <h2>Productos destacados</h2>
+            </div>
+        </div>
+        <div class="row g-3 g-md-4">
+            {% for producto in destacados %}
+            <div class="col-6 col-md-4 col-lg-3">
+                {% include 'home/card.html' with producto=producto %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Cómo funciona -->
+<section class="lt-section pt-0">
+    <div class="container">
+        <div class="lt-section-head">
+            <div>
+                <span class="lt-eyebrow">Así de simple</span>
+                <h2>¿Cómo funciona la reserva?</h2>
+            </div>
+        </div>
+        <div class="row g-3 g-md-4">
+            <div class="col-md-4">
+                <div class="lt-step">
+                    <div class="lt-step-num">1</div>
+                    <h5 class="fw-bold">Arma tu carrito</h5>
+                    <p class="text-muted mb-0">Elige tus productos desde el catálogo. Ves el stock disponible en todo momento.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="lt-step">
+                    <div class="lt-step-num">2</div>
+                    <h5 class="fw-bold">Envía la solicitud</h5>
+                    <p class="text-muted mb-0">Ingresa tu correo y confirma el reCAPTCHA. Te llega el detalle de tu reserva.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="lt-step">
+                    <div class="lt-step-num">3</div>
+                    <h5 class="fw-bold">Paga y retira</h5>
+                    <p class="text-muted mb-0">Tienes 24 horas para pasar por la tienda, pagar y llevarte tus productos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tiendas -->
+{% include 'home/tiendas.html' %}
+
+<!-- WhatsApp -->
+<section class="lt-section pt-0">
+    <div class="container">
+        <div class="lt-panel d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-center text-md-start">
+            <div>
+                <h4 class="fw-bold mb-1">¿Tienes dudas sobre un pedido?</h4>
+                <p class="text-muted mb-0">Escríbenos por WhatsApp y te respondemos en horario de tienda.</p>
+            </div>
+            <a href="https://wa.me/56994901217" target="_blank" rel="noopener" class="btn btn-success btn-lg btn-pill px-4 d-inline-flex align-items-center gap-2">
+                <i class="bi bi-whatsapp"></i> Escríbenos ahora
+            </a>
+        </div>
+    </div>
+</section>
 {% endblock BODY %}
