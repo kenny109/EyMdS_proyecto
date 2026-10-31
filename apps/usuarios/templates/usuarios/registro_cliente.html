@@ -1,0 +1,34 @@
+{% extends 'home/base.html' %}
+
+{% block HEAD_TITLE %}Crear cuenta · Almacén Los Tíos{% endblock HEAD_TITLE %}
+
+{% block BODY %}
+<div class="container lt-auth">
+    <div class="lt-auth-card lt-wide">
+        <div class="lt-auth-icon"><i class="bi bi-person-plus"></i></div>
+        <h1 class="h3 text-center fw-bold mb-1">Crea tu cuenta de cliente</h1>
+        <p class="text-center text-muted mb-4">Guarda tus datos y revisa el historial de tus reservas</p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <div class="row g-3">
+                {% for field in form %}
+                <div class="{% if field.name in 'first_name last_name password1 password2' %}col-sm-6{% else %}col-12{% endif %}">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            {% if form.non_field_errors %}<div class="alert alert-danger py-2 mt-3">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+            <p class="form-text mt-3 mb-0">La contraseña debe tener al menos 8 caracteres y no ser solo números.</p>
+            <button type="submit" class="btn btn-lt btn-lg w-100 mt-3">Crear cuenta</button>
+        </form>
+
+        <p class="text-center text-muted small mt-4 mb-0">
+            ¿Ya tienes cuenta? <a href="{% url 'Home:login' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="fw-semibold text-dark">Inicia sesión</a>
+        </p>
+    </div>
+</div>
+{% endblock BODY %}

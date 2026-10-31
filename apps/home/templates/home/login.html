@@ -7,7 +7,7 @@
     <div class="lt-auth-card">
         <div class="lt-auth-icon"><i class="bi bi-person-lock"></i></div>
         <h1 class="h3 text-center fw-bold mb-1">Iniciar sesión</h1>
-        <p class="text-center text-muted mb-4">Acceso para el personal de Almacén Los Tíos</p>
+        <p class="text-center text-muted mb-4">Clientes y personal de Almacén Los Tíos</p>
 
         {% if form.non_field_errors %}
         <div class="alert alert-danger py-2">
@@ -29,7 +29,8 @@
         </form>
 
         <p class="text-center text-muted small mt-4 mb-0">
-            ¿Eres cliente? No necesitas cuenta: <a href="{% url 'productos:index' %}" class="fw-semibold text-dark">arma tu carrito aquí</a>.
+            ¿Aún no tienes cuenta? <a href="{% url 'usuarios:registro' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="fw-semibold text-dark">Crea tu cuenta de cliente</a>.<br>
+            También puedes <a href="{% url 'productos:index' %}" class="fw-semibold text-dark">reservar sin cuenta</a>.
         </p>
     </div>
 </div>

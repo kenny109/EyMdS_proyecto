@@ -1,0 +1,30 @@
+{% extends 'home/base.html' %}
+{% load formato %}
+
+{% block HEAD_TITLE %}Reserva {{ reserva.codigo }} · Almacén Los Tíos{% endblock HEAD_TITLE %}
+
+{% block TITULO %}
+<h1>Reserva {{ reserva.codigo }}</h1>
+<p>Creada el {{ reserva.creada|date:"d/m/Y H:i" }}</p>
+{% endblock TITULO %}
+
+{% block BODY %}
+<div class="container py-4 py-lg-5">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            {% include 'carrito/_tabla_detalle.html' with reserva=reserva %}
+        </div>
+        <div class="col-lg-5">
+            <div class="lt-panel text-center">
+                <p class="text-muted mb-2">Muestra este código en la tienda</p>
+                <div class="lt-codigo mb-3">{{ reserva.codigo }}</div>
+                <div class="mb-3">{% include 'carrito/_estado.html' with r=reserva %}</div>
+                {% if reserva.estado == 'pendiente' and not reserva.esta_vencida %}
+                <p class="small text-muted mb-0">Retira y paga antes del <strong class="text-dark">{{ reserva.vence|date:"d/m/Y H:i" }}</strong>.</p>
+                {% endif %}
+            </div>
+            <a href="{% url 'usuarios:mis_reservas' %}" class="btn btn-link text-dark mt-2 px-0"><i class="bi bi-arrow-left"></i> Mis reservas</a>
+        </div>
+    </div>
+</div>
+{% endblock BODY %}

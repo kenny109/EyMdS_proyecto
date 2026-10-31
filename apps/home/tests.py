@@ -74,7 +74,8 @@ class PaginasPublicasTest(TestCase):
         respuesta = self.client.get(reverse("Home:home"))
         self.assertContains(respuesta, reverse("Home:login"))
         self.assertContains(respuesta, reverse("carrito:index"))
-        self.assertNotContains(respuesta, reverse("usuarios:home"))
+        self.assertNotContains(respuesta, f'href="{reverse("usuarios:home")}"')  # portal interno oculto
+        self.assertContains(respuesta, reverse("usuarios:registro"))  # MR-115: enlace para crear cuenta
 
     def test_contador_del_carrito(self):
         producto = Productos.objects.get(nombre="Jugo")

@@ -36,6 +36,16 @@
                     <li><a class="dropdown-item" href="{% url 'Home:register' %}"><i class="bi bi-person-plus"></i> Registrar usuario</a></li>
                     <li><hr class="dropdown-divider"></li>
                     {% endif %}
+                    {% if perms.carrito.view_reserva %}
+                    <li><a class="dropdown-item" href="{% url 'carrito:panel_reservas' %}"><i class="bi bi-journal-check"></i> Panel de reservas</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    {% endif %}
+                    {% if not user.is_staff %}
+                    <li><h6 class="dropdown-header">Mi cuenta</h6></li>
+                    <li><a class="dropdown-item" href="{% url 'usuarios:mis_reservas' %}"><i class="bi bi-bag-check"></i> Mis reservas</a></li>
+                    <li><a class="dropdown-item" href="{% url 'usuarios:mi_cuenta' %}"><i class="bi bi-person-gear"></i> Mis datos</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    {% endif %}
                     <li>
                         <!-- Django 5: el cierre de sesión debe enviarse por POST (MR-111) -->
                         <form method="post" action="{% url 'Home:logout' %}" class="m-0">
@@ -46,6 +56,7 @@
                 </ul>
             </div>
             {% else %}
+            <a class="btn btn-link nav-link text-white px-2 d-none d-md-inline-block" href="{% url 'usuarios:registro' %}">Crear cuenta</a>
             <a class="btn btn-lt btn-sm px-3 d-none d-sm-inline-block" href="{% url 'Home:login' %}"><i class="bi bi-person"></i> Iniciar sesión</a>
             <a class="btn btn-link nav-link text-white px-2 d-sm-none" href="{% url 'Home:login' %}" aria-label="Iniciar sesión"><i class="bi bi-person fs-5"></i></a>
             {% endif %}
