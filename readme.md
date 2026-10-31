@@ -116,3 +116,15 @@ Esta versión introduce un sitio web funcional con visualización de productos y
 - **MR-112 (Correctiva):** verificación real de reCAPTCHA, remitente de correo de la tienda, revalidación de stock al reservar y manejo de errores 404.
 - **MR-113 (Perfectiva):** nueva navegación con contador del carrito, página de inicio con categorías y destacados, footer informativo.
 - **MR-114 (Perfectiva):** catálogo con búsqueda, filtro por categoría, paginación, indicadores de stock y ficha pública de producto.
+
+---
+
+### Release Notes - Versión 2.1.0
+
+#### Fecha: 31 de octubre de 2026
+
+- **MR-115 (Perfectiva) – Cuentas de cliente:** tabla `usuarios_cliente` (vinculada a `auth.User`), registro público en `/usuarios/registro/`, página "Mi cuenta" para editar datos y enlace "Crear cuenta" en el navbar y el login. Los clientes nunca son staff.
+- **MR-116 (Perfectiva) – Registro de reservas:** tablas `carrito_reserva` y `carrito_detallereserva`; cada solicitud del carrito queda guardada con un código (`LT-XXXXXX`), estado (pendiente / retirada / cancelada / vencida) y plazo de 24 h. Los clientes ven su historial en `/usuarios/mis-reservas/`; el personal gestiona todo en `/carrito/reservas/` y en el admin.
+- **Permisos:** permiso nuevo `carrito.gestionar_reservas` y grupo **Vendedores** (ver y gestionar reservas) creado por migración. Un cliente solo puede ver sus propias reservas.
+- Zona horaria cambiada a `America/Santiago`.
+- Tras actualizar: `python manage.py migrate`. Pruebas: `python manage.py test carrito productos home usuarios` (50 pruebas).

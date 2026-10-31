@@ -1,0 +1,62 @@
+{% extends 'home/base.html' %}
+{% load formato %}
+
+{% block HEAD_TITLE %}Panel de reservas · Almacén Los Tíos{% endblock HEAD_TITLE %}
+
+{% block TITULO %}
+<h1>Panel de reservas</h1>
+<p>Reservas recibidas desde el carrito de la tienda</p>
+{% endblock TITULO %}
+
+{% block BODY %}
+<div class="container py-4">
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg"><a href="?" class="lt-stat {% if not estado_activo %}active{% endif %}"><strong>{{ reservas|length }}</strong><span>{% if estado_activo or consulta %}Resultados{% else %}Todas{% endif %}</span></a></div>
+        {% for valor, nombre in estados %}
+        <div class="col-6 col-lg"><a href="?estado={{ valor }}" class="lt-stat {% if estado_activo == valor %}active{% endif %}"><strong>{% for k, v in conteo.items %}{% if k == valor %}{{ v }}{% endif %}{% endfor %}</strong><span>{{ nombre }}</span></a></div>
+        {% endfor %}
+    </div>
+    {% if por_vencer %}
+    <div class="alert alert-warning"><i class="bi bi-alarm"></i> Hay {{ por_vencer }} reserva{{ por_vencer|pluralize }} pendiente{{ por_vencer|pluralize }} con el plazo de 24 h cumplido.</div>
+    {% endif %}
+
+    <div class="lt-panel">
+        <form method="get" class="row g-2 mb-3">
+            {% if estado_activo %}<input type="hidden" name="estado" value="{{ estado_activo }}">{% endif %}
+            <div class="col-md-6"><input type="search" name="q" value="{{ consulta }}" class="form-control" placeholder="Buscar por código o correo..."></div>
+            <div class="col-md-2"><button class="btn btn-lt-dark w-100">Buscar</button></div>
+        </form>
+        {% if reservas %}
+        <div class="table-responsive">
+            <table class="lt-table">
+                <thead><tr><th>Código</th><th>Cliente</th><th>Creada</th><th>Vence</th><th class="text-end">Total</th><th>Estado</th><th class="text-end">Acciones</th></tr></thead>
+                <tbody>
+                {% for r in reservas %}
+                <tr>
+                    <td><a href="{% url 'carrito:detalle_reserva' r.codigo %}" class="fw-bold text-dark" style="font-family: Consolas, monospace;">{{ r.codigo }}</a></td>
+                    <td>{{ r.correo }}{% if r.cliente %}<br><span class="small text-muted"><i class="bi bi-person-check"></i> {{ r.cliente }}</span>{% endif %}</td>
+                    <td>{{ r.creada|date:"d/m H:i" }}</td>
+                    <td>{{ r.vence|date:"d/m H:i" }}</td>
+                    <td class="text-end fw-semibold">${{ r.total|pesos }}</td>
+                    <td>{% include 'carrito/_estado.html' with r=r %}</td>
+                    <td class="text-end text-nowrap">
+                        {% if perms.carrito.gestionar_reservas and r.estado == 'pendiente' or perms.carrito.gestionar_reservas and r.estado == 'vencida' %}
+                        <form method="post" action="{% url 'carrito:cambiar_estado_reserva' r.codigo %}?next={{ request.get_full_path|urlencode }}" class="d-inline">
+                            {% csrf_token %}
+                            <button name="estado" value="retirada" class="btn btn-sm btn-success" title="Marcar como retirada"><i class="bi bi-check2"></i></button>
+                            <button name="estado" value="cancelada" class="btn btn-sm btn-outline-secondary" title="Cancelar"><i class="bi bi-x"></i></button>
+                        </form>
+                        {% endif %}
+                        <a href="{% url 'carrito:detalle_reserva' r.codigo %}" class="btn btn-sm btn-outline-dark">Ver</a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center text-muted py-5 mb-0">No hay reservas para mostrar.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock BODY %}

@@ -31,7 +31,10 @@
                 <form method="post" action="{% url 'carrito:enviar_correo' %}" class="mt-4">
                     {% csrf_token %}
                     <label for="correo" class="form-label fw-semibold">Tu correo electrónico</label>
-                    <input type="email" id="correo" name="correo" class="form-control form-control-lg mb-3" placeholder="nombre@correo.com" required>
+                    <input type="email" id="correo" name="correo" class="form-control form-control-lg mb-3" placeholder="nombre@correo.com" value="{{ user.email|default:'' }}" required>
+                    {% if not user.is_authenticated %}
+                    <p class="small text-muted mb-3"><i class="bi bi-person-plus"></i> <a href="{% url 'usuarios:registro' %}?next={% url 'carrito:index' %}" class="text-dark fw-semibold">Crea una cuenta</a> o <a href="{% url 'Home:login' %}?next={% url 'carrito:index' %}" class="text-dark fw-semibold">inicia sesión</a> para ver el historial de tus reservas.</p>
+                    {% endif %}
                     <!-- La clave pública se lee desde .env (MR-112) -->
                     <div class="g-recaptcha mb-3" data-sitekey="{{ recaptcha_site_key }}"></div>
                     <button type="submit" class="btn btn-lt btn-lg w-100"><i class="bi bi-send-check"></i> Enviar solicitud de reserva</button>

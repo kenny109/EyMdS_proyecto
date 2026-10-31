@@ -1,0 +1,15 @@
+{% load formato %}
+<div class="lt-panel">
+    <h2 class="h5 fw-bold mb-2">Productos reservados</h2>
+    <div class="table-responsive">
+        <table class="lt-table">
+            <thead><tr><th>Producto</th><th class="text-center">Cantidad</th><th class="text-end">Precio</th><th class="text-end">Subtotal</th></tr></thead>
+            <tbody>
+            {% for d in reserva.detalles.all %}
+            <tr><td>{{ d.nombre }}</td><td class="text-center">{{ d.cantidad }}</td><td class="text-end">${{ d.precio|pesos }}</td><td class="text-end fw-semibold">${{ d.subtotal|pesos }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="lt-summary-total"><span>Total</span><span>${{ reserva.total|pesos }}</span></div>
+</div>

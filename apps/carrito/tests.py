@@ -160,3 +160,111 @@ class ReservaCarritoTest(TestCase):
             reverse("carrito:agregar_producto", args=[self.producto.id]), {"next": "https://evil.com"}
         )
         self.assertRedirects(respuesta, reverse("productos:index"))
+
+    @override_settings(DEBUG=True)
+    def test_falla_smtp_conserva_carrito_y_explica_en_debug(self):
+        import smtplib
+        with self._google(True), patch(
+            "carrito.views.EmailMessage.send",
+            side_effect=smtplib.SMTPAuthenticationError(535, b"Username and Password not accepted"),
+        ):
+            respuesta = self._reservar()
+        self.assertRedirects(respuesta, reverse("carrito:index"), fetch_redirect_response=False)
+        self.assertTrue(self.client.session["carrito"])
+        mensajes = [str(m) for m in respuesta.wsgi_request._messages]
+        self.assertTrue(any("credenciales de correo rechazadas" in m for m in mensajes))
+
+
+# --------------------------------------------------------------------------- #
+#  MR-116: registro de reservas y permisos
+# --------------------------------------------------------------------------- #
+from django.contrib.auth.models import Group, Permission, User
+
+from carrito.models import Reserva
+from usuarios.models import Cliente
+
+
+@override_settings(DEFAULT_FROM_EMAIL="tienda@lostios.cl", STORE_EMAIL="reservas@lostios.cl")
+class RegistroReservasTest(TestCase):
+    def setUp(self):
+        categoria = Categoria.objects.create(nombre="Bebidas", descripcion="Jugos")
+        self.jugo = Productos.objects.create(nombre="Jugo", precio=990, cantidad=10, categoria=categoria, umbral_minimo=1)
+        self.agua = Productos.objects.create(nombre="Agua", precio=500, cantidad=10, categoria=categoria, umbral_minimo=1)
+        self.user = User.objects.create_user("cliente1", email="c1@correo.com", password="Clave-segura-1")
+        self.cliente = Cliente.objects.create(usuario=self.user)
+
+    def _google_ok(self):
+        respuesta = MagicMock()
+        respuesta.json.return_value = {"success": True}
+        return patch("carrito.views.requests.post", return_value=respuesta)
+
+    def _reservar(self, correo="c1@correo.com"):
+        self.client.get(reverse("carrito:agregar_producto", args=[self.jugo.id]))
+        self.client.get(reverse("carrito:agregar_producto", args=[self.jugo.id]))
+        self.client.get(reverse("carrito:agregar_producto", args=[self.agua.id]))
+        with self._google_ok():
+            return self.client.post(reverse("carrito:enviar_correo"), {"correo": correo, "g-recaptcha-response": "t"})
+
+    def test_reserva_queda_registrada_con_detalle_y_codigo(self):
+        respuesta = self._reservar()
+        reserva = Reserva.objects.get()
+        self.assertEqual(reserva.total, 990 * 2 + 500)
+        self.assertEqual(reserva.estado, Reserva.Estado.PENDIENTE)
+        self.assertEqual(sorted((d.nombre, d.cantidad) for d in reserva.detalles.all()), [("Agua", 1), ("Jugo", 2)])
+        self.assertRegex(reserva.codigo, r"^LT-[A-Z2-9]{6}$")
+        self.assertEqual((reserva.vence - reserva.creada).total_seconds(), 24 * 3600)
+        self.assertContains(respuesta, reserva.codigo)
+        self.assertIn(reserva.codigo, mail.outbox[0].body)
+        self.assertIsNone(reserva.cliente)  # sin sesión iniciada
+
+    def test_reserva_de_cliente_con_sesion_queda_vinculada(self):
+        self.client.login(username="cliente1", password="Clave-segura-1")
+        self._reservar()
+        self.assertEqual(Reserva.objects.get().cliente, self.cliente)
+        respuesta = self.client.get(reverse("usuarios:mis_reservas"))
+        self.assertContains(respuesta, Reserva.objects.get().codigo)
+
+    def test_si_falla_el_correo_no_se_guarda_la_reserva(self):
+        import smtplib
+        with patch("carrito.views.EmailMessage.send", side_effect=smtplib.SMTPException("caído")):
+            self._reservar()
+        self.assertFalse(Reserva.objects.exists())
+        self.assertTrue(self.client.session["carrito"])
+
+    def test_cliente_no_ve_reservas_ajenas(self):
+        otro = Cliente.objects.create(usuario=User.objects.create_user("otro", password="Clave-segura-2"))
+        ajena = Reserva.objects.create(cliente=otro, correo="otro@correo.com", total=100)
+        self.client.login(username="cliente1", password="Clave-segura-1")
+        self.assertEqual(self.client.get(reverse("usuarios:mi_reserva", args=[ajena.codigo])).status_code, 404)
+        self.assertEqual(self.client.get(reverse("carrito:panel_reservas")).status_code, 403)
+
+    def test_panel_requiere_permiso(self):
+        staff = User.objects.create_user("staff", password="Clave-segura-3", is_staff=True)
+        self.client.login(username="staff", password="Clave-segura-3")
+        self.assertEqual(self.client.get(reverse("carrito:panel_reservas")).status_code, 403)
+        staff.groups.add(Group.objects.get(name="Vendedores"))
+        self.assertEqual(self.client.get(reverse("carrito:panel_reservas")).status_code, 200)
+
+    def test_vendedor_marca_retirada_y_queda_registrado(self):
+        reserva = Reserva.objects.create(correo="x@correo.com", total=100)
+        vendedor = User.objects.create_user("vendedor", password="Clave-segura-4", is_staff=True)
+        vendedor.groups.add(Group.objects.get(name="Vendedores"))
+        self.client.login(username="vendedor", password="Clave-segura-4")
+        self.client.post(reverse("carrito:cambiar_estado_reserva", args=[reserva.codigo]), {"estado": "retirada"})
+        reserva.refresh_from_db()
+        self.assertEqual((reserva.estado, reserva.gestionada_por), (Reserva.Estado.RETIRADA, vendedor))
+        # una reserva retirada ya no puede cancelarse
+        self.client.post(reverse("carrito:cambiar_estado_reserva", args=[reserva.codigo]), {"estado": "cancelada"})
+        reserva.refresh_from_db()
+        self.assertEqual(reserva.estado, Reserva.Estado.RETIRADA)
+
+    def test_solo_lectura_no_puede_cambiar_estado(self):
+        reserva = Reserva.objects.create(correo="x@correo.com", total=100)
+        lector = User.objects.create_user("lector", password="Clave-segura-5", is_staff=True)
+        lector.user_permissions.add(Permission.objects.get(codename="view_reserva"))
+        self.client.login(username="lector", password="Clave-segura-5")
+        self.assertEqual(self.client.get(reverse("carrito:panel_reservas")).status_code, 200)
+        r = self.client.post(reverse("carrito:cambiar_estado_reserva", args=[reserva.codigo]), {"estado": "retirada"})
+        self.assertEqual(r.status_code, 403)
+        reserva.refresh_from_db()
+        self.assertEqual(reserva.estado, Reserva.Estado.PENDIENTE)

@@ -1,0 +1,42 @@
+{% extends 'home/base.html' %}
+{% load formato %}
+
+{% block HEAD_TITLE %}Reserva {{ reserva.codigo }} · Panel{% endblock HEAD_TITLE %}
+
+{% block TITULO %}
+<h1>Reserva {{ reserva.codigo }}</h1>
+<p>Panel de reservas del personal</p>
+{% endblock TITULO %}
+
+{% block BODY %}
+<div class="container py-4 py-lg-5">
+    <div class="row g-4">
+        <div class="col-lg-7">{% include 'carrito/_tabla_detalle.html' with reserva=reserva %}</div>
+        <div class="col-lg-5">
+            <div class="lt-panel">
+                <div class="mb-3">{% include 'carrito/_estado.html' with r=reserva %}</div>
+                <ul class="lt-info-list mb-3">
+                    <li><i class="bi bi-envelope"></i> {{ reserva.correo }}</li>
+                    <li><i class="bi bi-person"></i> {% if reserva.cliente %}{{ reserva.cliente }}{% if reserva.cliente.telefono %} · {{ reserva.cliente.telefono }}{% endif %}{% else %}Reserva sin cuenta{% endif %}</li>
+                    <li><i class="bi bi-calendar"></i> Creada {{ reserva.creada|date:"d/m/Y H:i" }}</li>
+                    <li><i class="bi bi-alarm"></i> Vence {{ reserva.vence|date:"d/m/Y H:i" }}</li>
+                    {% if reserva.gestionada_por %}<li><i class="bi bi-person-badge"></i> Gestionada por {{ reserva.gestionada_por.username }} · {{ reserva.actualizada|date:"d/m/Y H:i" }}</li>{% endif %}
+                </ul>
+                {% if perms.carrito.gestionar_reservas %}
+                {% if reserva.estado == 'pendiente' or reserva.estado == 'vencida' %}
+                <form method="post" action="{% url 'carrito:cambiar_estado_reserva' reserva.codigo %}?next={{ request.get_full_path|urlencode }}" class="d-grid gap-2">
+                    {% csrf_token %}
+                    <button name="estado" value="retirada" class="btn btn-success"><i class="bi bi-check2"></i> Marcar como retirada</button>
+                    {% if reserva.estado == 'pendiente' %}<button name="estado" value="vencida" class="btn btn-outline-danger">Marcar como vencida</button>{% endif %}
+                    <button name="estado" value="cancelada" class="btn btn-outline-secondary">Cancelar reserva</button>
+                </form>
+                {% endif %}
+                {% else %}
+                <p class="small text-muted mb-0">Tienes acceso de lectura. Para cambiar el estado necesitas el permiso «gestionar reservas».</p>
+                {% endif %}
+            </div>
+            <a href="{% url 'carrito:panel_reservas' %}" class="btn btn-link text-dark mt-2 px-0"><i class="bi bi-arrow-left"></i> Volver al panel</a>
+        </div>
+    </div>
+</div>
+{% endblock BODY %}

@@ -194,3 +194,24 @@ h1, h2, h3, h4, .lt-display { font-family: 'Poppins', 'Roboto', sans-serif; lett
 @media (max-width: 359.98px) {
   .lt-brand-text { display: none; }
 }
+
+/* ---------- Clientes y reservas (MR-115 / MR-116) ---------- */
+.lt-codigo { display: inline-block; font-family: 'Consolas', 'Courier New', monospace; font-size: 1.8rem; font-weight: 700; letter-spacing: .12em; background: var(--lt-surface); border: 2px dashed var(--lt-accent-dark); border-radius: 12px; padding: .35rem 1.1rem; }
+.lt-estado { font-weight: 600; font-size: .78rem; padding: .4em .8em; }
+.lt-estado-pendiente { background: #fff3cd; color: #7a5a00; }
+.lt-estado-retirada { background: #d1e7dd; color: #0f5132; }
+.lt-estado-cancelada { background: #e2e3e5; color: #41464b; }
+.lt-estado-vencida { background: #f8d7da; color: #842029; }
+.lt-reserva-row { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--lt-border); flex-wrap: wrap; }
+.lt-reserva-row:last-child { border-bottom: 0; }
+.lt-reserva-row .codigo { font-family: 'Consolas', monospace; font-weight: 700; color: var(--lt-ink); text-decoration: none; }
+.lt-stat { background: var(--lt-card); border-radius: var(--lt-radius); box-shadow: var(--lt-shadow); padding: 1rem 1.25rem; text-decoration: none; color: var(--lt-ink); display: block; border: 2px solid transparent; }
+.lt-stat:hover { color: var(--lt-ink); border-color: var(--lt-border); }
+.lt-stat.active { border-color: var(--lt-ink); }
+.lt-stat strong { display: block; font-family: 'Poppins', sans-serif; font-size: 1.6rem; }
+.lt-stat span { color: var(--lt-muted); font-size: .85rem; }
+.lt-table { width: 100%; }
+.lt-table th { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--lt-muted); font-weight: 600; border-bottom: 1px solid var(--lt-border); padding: .6rem .5rem; }
+.lt-table td { padding: .75rem .5rem; border-bottom: 1px solid var(--lt-border); vertical-align: middle; }
+.lt-table tr:last-child td { border-bottom: 0; }
+.lt-auth-card.lt-wide { max-width: 560px; }

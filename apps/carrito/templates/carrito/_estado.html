@@ -1,0 +1,6 @@
+{# Etiqueta de estado de una reserva (MR-116). Uso: {% include 'carrito/_estado.html' with r=reserva %} #}
+{% if r.esta_vencida %}
+<span class="badge rounded-pill lt-estado lt-estado-vencida" title="Pasaron más de 24 h">Plazo vencido</span>
+{% else %}
+<span class="badge rounded-pill lt-estado lt-estado-{{ r.estado }}">{{ r.get_estado_display }}</span>
+{% endif %}

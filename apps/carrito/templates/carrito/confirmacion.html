@@ -8,12 +8,23 @@
     <div class="lt-auth-card text-center">
         <div class="lt-auth-icon bg-success text-white"><i class="bi bi-check2"></i></div>
         <h1 class="h3 fw-bold mb-2">¡Reserva enviada!</h1>
+        {% if reserva %}
+        <p class="text-muted mb-2">Tu código de reserva es</p>
+        <div class="lt-codigo mb-3">{{ reserva.codigo }}</div>
+        {% endif %}
         <p class="text-muted">
             Enviamos el detalle de tu pedido{% if correo %} a <strong class="text-dark">{{ correo }}</strong>{% endif %} y avisamos a la tienda.
         </p>
         {% if total %}<p class="fs-4 fw-bold mb-1">Total: ${{ total|pesos }}</p>{% endif %}
-        <p class="small text-muted mb-4">Tienes 24 horas para pagar y retirar tus productos.</p>
-        <a href="{% url 'productos:index' %}" class="btn btn-lt btn-lg w-100">Volver al catálogo</a>
+        <p class="small text-muted mb-4">
+            {% if reserva %}Muestra tu código en la tienda antes del {{ reserva.vence|date:"d/m/Y H:i" }} para pagar y retirar.{% else %}Tienes 24 horas para pagar y retirar tus productos.{% endif %}
+        </p>
+        <div class="d-grid gap-2">
+            {% if reserva and reserva.cliente %}
+            <a href="{% url 'usuarios:mi_reserva' reserva.codigo %}" class="btn btn-lt btn-lg">Ver mi reserva</a>
+            {% endif %}
+            <a href="{% url 'productos:index' %}" class="btn {% if reserva and reserva.cliente %}btn-outline-dark{% else %}btn-lt btn-lg{% endif %}">Volver al catálogo</a>
+        </div>
     </div>
 </div>
 {% endblock BODY %}
