@@ -120,27 +120,30 @@ def enviar_correo(request):
             messages.error(request, f"El stock de «{nombre}» cambió. Ajusta tu carrito antes de reservar.")
             return redirect("carrito:index")
 
-    # 4. Registrar la reserva y enviar los correos en una sola transacción (MR-116):
-    #    si el correo falla, la reserva no queda guardada y el carrito se conserva.
+    # 4. Registrar la reserva (MR-116). La transacción es corta: no se mantiene abierta
+    #    mientras se envían los correos, para no bloquear la base SQLite.
     cliente = getattr(request.user, "cliente", None) if request.user.is_authenticated else None
+    with transaction.atomic():
+        reserva = Reserva.objects.create(cliente=cliente, correo=correo)
+        total = 0
+        for key, item in carrito_sesion.items():
+            DetalleReserva.objects.create(
+                reserva=reserva,
+                producto=en_bd.get(int(key)),
+                nombre=item["nombre"],
+                precio=item["precio"],
+                cantidad=item["cantidad"],
+            )
+            total += item["precio"] * item["cantidad"]
+        reserva.total = total
+        reserva.save(update_fields=["total"])
+
+    # 5. Enviar los correos. Si fallan, la reserva se elimina y el carrito se conserva.
     try:
-        with transaction.atomic():
-            reserva = Reserva.objects.create(cliente=cliente, correo=correo)
-            total = 0
-            for key, item in carrito_sesion.items():
-                DetalleReserva.objects.create(
-                    reserva=reserva,
-                    producto=en_bd.get(int(key)),
-                    nombre=item["nombre"],
-                    precio=item["precio"],
-                    cantidad=item["cantidad"],
-                )
-                total += item["precio"] * item["cantidad"]
-            reserva.total = total
-            reserva.save(update_fields=["total"])
-            _enviar_correos_reserva(reserva)
+        _enviar_correos_reserva(reserva)
     except (smtplib.SMTPException, OSError) as error:
         logger.exception("Error al enviar el correo de reserva")
+        reserva.delete()
         mensaje = "No pudimos enviar el correo en este momento. Tu carrito se mantuvo; inténtalo más tarde."
         if settings.DEBUG:
             # Solo en desarrollo: muestra la causa para diagnosticar la configuración SMTP del .env

@@ -268,3 +268,21 @@ class RegistroReservasTest(TestCase):
         self.assertEqual(r.status_code, 403)
         reserva.refresh_from_db()
         self.assertEqual(reserva.estado, Reserva.Estado.PENDIENTE)
+
+    def test_correos_se_envian_fuera_de_la_transaccion(self):
+        # Regresión "database is locked": la base no debe quedar bloqueada mientras responde el servidor de correo.
+        # TestCase envuelve cada prueba en sus propias transacciones; se compara contra esa profundidad base.
+        from django.core.mail import EmailMessage
+        from django.db import connection
+        base = len(connection.atomic_blocks)
+        profundidades = []
+        original = EmailMessage.send
+
+        def registrar(mensaje, *args, **kwargs):
+            profundidades.append(len(connection.atomic_blocks))
+            return original(mensaje, *args, **kwargs)
+
+        with patch("carrito.views.EmailMessage.send", registrar):
+            self._reservar()
+        self.assertTrue(Reserva.objects.exists())
+        self.assertEqual(profundidades, [base, base])

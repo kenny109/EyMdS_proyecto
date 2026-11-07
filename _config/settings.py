@@ -95,6 +95,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        # SQLite admite una escritura a la vez: espera hasta 20 s antes de dar "database is locked"
+        'OPTIONS': {'timeout': 20},
     }
 }
 
