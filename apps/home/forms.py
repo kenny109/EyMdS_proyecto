@@ -1,5 +1,11 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import (
+    AuthenticationForm,
+    PasswordChangeForm,
+    PasswordResetForm,
+    SetPasswordForm,
+    UserCreationForm,
+)
 from django.contrib.auth.models import User
 
 
@@ -45,3 +51,36 @@ class CustomUserCreationForm(UserCreationForm):
                 "password2": "Repite la contraseña",
             },
         )
+
+
+# --------------------------------------------------------------------------- #
+#  Recuperación y cambio de contraseña (MR-119)
+# --------------------------------------------------------------------------- #
+
+
+class RecuperarPasswordForm(PasswordResetForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["email"].label = "Correo electrónico de tu cuenta"
+        _estilizar(self, {"email": "nombre@correo.com"})
+        self.fields["email"].widget.attrs["autofocus"] = True
+
+
+class NuevaPasswordForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["new_password1"].label = "Nueva contraseña"
+        self.fields["new_password2"].label = "Repite la nueva contraseña"
+        self.fields["new_password1"].help_text = ""
+        _estilizar(self, {"new_password1": "Mínimo 8 caracteres", "new_password2": "Repite la contraseña"})
+
+
+class CambiarPasswordForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["old_password"].label = "Contraseña actual"
+        self.fields["new_password1"].label = "Nueva contraseña"
+        self.fields["new_password2"].label = "Repite la nueva contraseña"
+        self.fields["new_password1"].help_text = ""
+        _estilizar(self, {"old_password": "Tu contraseña actual", "new_password1": "Mínimo 8 caracteres",
+                          "new_password2": "Repite la contraseña"})

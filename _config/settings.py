@@ -150,6 +150,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = reverse_lazy("Home:login")
 LOGIN_REDIRECT_URL = reverse_lazy("Home:home")
+# Los enlaces para restablecer contraseña caducan a las 2 horas (MR-119)
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 2
 
 # Los mensajes de Django usan las clases de alerta de Bootstrap
 MESSAGE_TAGS = {

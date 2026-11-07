@@ -1,0 +1,9 @@
+{% extends 'home/base.html' %}
+{% block HEAD_TITLE %}{% block titulo_pagina %}{% endblock %} · Almacén Los Tíos{% endblock HEAD_TITLE %}
+{% block BODY %}
+<div class="container lt-auth">
+    <div class="lt-auth-card">
+        {% block tarjeta %}{% endblock %}
+    </div>
+</div>
+{% endblock BODY %}

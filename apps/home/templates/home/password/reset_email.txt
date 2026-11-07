@@ -1,0 +1,11 @@
+{% autoescape off %}Hola{% if user.first_name %} {{ user.first_name }}{% endif %}:
+
+Recibimos una solicitud para restablecer la contraseña de tu cuenta "{{ user.get_username }}" en Almacén Los Tíos.
+
+Para crear una nueva contraseña, abre este enlace (válido por 2 horas):
+{{ protocol }}://{{ domain }}{% url 'Home:password_reset_confirm' uidb64=uid token=token %}
+
+Si no fuiste tú, ignora este correo: tu contraseña no cambiará.
+
+Almacén Los Tíos
+{% endautoescape %}

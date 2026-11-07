@@ -1,0 +1,10 @@
+{% extends 'home/password/_card.html' %}
+{% block titulo_pagina %}Contraseña actualizada{% endblock %}
+{% block tarjeta %}
+<div class="text-center">
+    <div class="lt-auth-icon bg-success text-white"><i class="bi bi-check2"></i></div>
+    <h1 class="h3 fw-bold mb-2">¡Listo!</h1>
+    <p class="text-muted">Tu contraseña se actualizó. Ya puedes iniciar sesión con ella.</p>
+    <a href="{% url 'Home:login' %}" class="btn btn-lt btn-lg w-100">Iniciar sesión</a>
+</div>
+{% endblock %}
