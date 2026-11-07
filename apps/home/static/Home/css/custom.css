@@ -215,3 +215,10 @@ h1, h2, h3, h4, .lt-display { font-family: 'Poppins', 'Roboto', sans-serif; lett
 .lt-table td { padding: .75rem .5rem; border-bottom: 1px solid var(--lt-border); vertical-align: middle; }
 .lt-table tr:last-child td { border-bottom: 0; }
 .lt-auth-card.lt-wide { max-width: 560px; }
+
+/* ---------- Tiendas y minimapa (MR-117 / MR-118) ---------- */
+.lt-mapa { height: 420px; border-radius: 10px; z-index: 0; }
+.lt-pin { background: var(--lt-accent); color: var(--lt-ink); border: 2px solid var(--lt-ink); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: grid !important; place-items: center; box-shadow: 0 2px 6px rgba(0,0,0,.35); }
+.lt-pin i { transform: rotate(45deg); font-size: 15px; }
+.leaflet-popup-content a { color: var(--lt-ink); font-weight: 600; display: inline-block; margin-top: .3rem; }
+@media (max-width: 575.98px) { .lt-mapa { height: 300px; } }

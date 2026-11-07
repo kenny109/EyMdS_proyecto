@@ -8,6 +8,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from productos.models import Categoria, Productos
 
 from . import forms
+from .models import Tienda
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -17,8 +18,20 @@ def home(request: HttpRequest) -> HttpResponse:
         "destacados": Productos.objects.select_related("categoria")
         .filter(cantidad__gt=0)
         .order_by("-fecha_ingreso", "-id")[:4],
+        "tiendas": Tienda.objects.filter(activa=True),
     }
     return render(request, "home/index.html", contexto)
+
+
+def tiendas(request: HttpRequest) -> HttpResponse:
+    """Pantalla propia de tiendas (MR-117) con minimapa de ubicaciones (MR-118)."""
+    lista = list(Tienda.objects.filter(activa=True))
+    puntos = [
+        {"id": t.id, "nombre": t.nombre, "direccion": t.direccion,
+         "lat": float(t.latitud), "lng": float(t.longitud), "ruta": t.como_llegar_url}
+        for t in lista
+    ]
+    return render(request, "home/tiendas_page.html", {"tiendas": lista, "puntos": puntos})
 
 
 ### Login (MR-111: patrón Post/Redirect/Get + mensajes, rutas en minúscula)

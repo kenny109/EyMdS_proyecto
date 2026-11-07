@@ -46,6 +46,7 @@
                     <li><a class="dropdown-item" href="{% url 'usuarios:mi_cuenta' %}"><i class="bi bi-person-gear"></i> Mis datos</a></li>
                     <li><hr class="dropdown-divider"></li>
                     {% endif %}
+                    <li><a class="dropdown-item" href="{% url 'Home:password_change' %}"><i class="bi bi-key"></i> Cambiar contraseña</a></li>
                     <li>
                         <!-- Django 5: el cierre de sesión debe enviarse por POST (MR-111) -->
                         <form method="post" action="{% url 'Home:logout' %}" class="m-0">
@@ -71,7 +72,7 @@
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1">
                 <li class="nav-item"><a class="nav-link {% if ruta == 'Home:home' %}active{% endif %}" href="{% url 'Home:home' %}">Inicio</a></li>
                 <li class="nav-item"><a class="nav-link {% if ruta == 'productos:index' or ruta == 'productos:producto_publico' %}active{% endif %}" href="{% url 'productos:index' %}">Catálogo</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'Home:home' %}#tiendas">Tiendas</a></li>
+                <li class="nav-item"><a class="nav-link {% if ruta == 'Home:tiendas' %}active{% endif %}" href="{% url 'Home:tiendas' %}">Tiendas</a></li>
                 <li class="nav-item"><a class="nav-link {% if ruta == 'Home:about' %}active{% endif %}" href="{% url 'Home:about' %}">Nosotros</a></li>
             </ul>
         </div>

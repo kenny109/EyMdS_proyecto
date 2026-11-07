@@ -84,3 +84,96 @@ class PaginasPublicasTest(TestCase):
         respuesta = self.client.get(reverse("Home:home"))
         self.assertEqual(respuesta.context["cantidad_items"], 2)
         self.assertContains(respuesta, '<span class="lt-cart-badge">2</span>', html=True)
+
+
+# --------------------------------------------------------------------------- #
+#  MR-117 / MR-118: pantalla de tiendas con minimapa
+# --------------------------------------------------------------------------- #
+import json
+
+from home.models import Tienda
+
+
+class TiendasTest(TestCase):
+    def test_migracion_carga_las_tres_tiendas(self):
+        self.assertEqual(
+            list(Tienda.objects.values_list("nombre", flat=True)),
+            ["Tienda Santiago", "Tienda Puerto Montt", "Tienda Viña del Mar"],
+        )
+
+    def test_pantalla_propia_con_datos_del_mapa(self):
+        respuesta = self.client.get(reverse("Home:tiendas"))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, 'id="mapa-tiendas"')
+        self.assertContains(respuesta, "leaflet@1.9.4")
+        puntos = respuesta.context["puntos"]
+        self.assertEqual(len(puntos), 3)
+        self.assertAlmostEqual(puntos[0]["lat"], -33.4378, places=3)
+        self.assertIn("google.com/maps/dir", puntos[0]["ruta"])
+        # los datos del mapa viajan en un <script type="application/json"> (sin inyección de HTML)
+        self.assertContains(respuesta, 'id="puntos-tiendas" type="application/json"')
+
+    def test_tienda_inactiva_no_se_muestra(self):
+        Tienda.objects.filter(nombre="Tienda Puerto Montt").update(activa=False)
+        respuesta = self.client.get(reverse("Home:tiendas"))
+        self.assertNotContains(respuesta, "Tienda Puerto Montt")
+        self.assertEqual(len(respuesta.context["puntos"]), 2)
+
+    def test_navbar_e_inicio_enlazan_a_la_pantalla(self):
+        respuesta = self.client.get(reverse("Home:home"))
+        self.assertContains(respuesta, f'href="{reverse("Home:tiendas")}"')
+        self.assertContains(respuesta, "Tienda Viña del Mar")
+
+
+# --------------------------------------------------------------------------- #
+#  MR-119: recuperar y cambiar contraseña
+# --------------------------------------------------------------------------- #
+import re
+
+from django.core import mail
+from django.test import override_settings
+
+
+@override_settings(DEFAULT_FROM_EMAIL="tienda@lostios.cl")
+class RecuperarPasswordTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user("maria", email="maria@correo.com", password="Vieja-clave-1")
+
+    def test_flujo_completo_por_correo(self):
+        respuesta = self.client.post(reverse("Home:password_reset"), {"email": "maria@correo.com"})
+        self.assertRedirects(respuesta, reverse("Home:password_reset_done"))
+        self.assertEqual(len(mail.outbox), 1)
+        enlace = re.search(r"http://testserver(\S+)", mail.outbox[0].body).group(1)
+        # el enlace lleva al formulario de nueva contraseña
+        formulario = self.client.get(enlace, follow=True)
+        self.assertTrue(formulario.context["validlink"])
+        url_form = formulario.redirect_chain[-1][0]
+        final = self.client.post(url_form, {"new_password1": "Nueva-clave-2026", "new_password2": "Nueva-clave-2026"})
+        self.assertRedirects(final, reverse("Home:password_reset_complete"))
+        self.assertTrue(self.client.login(username="maria", password="Nueva-clave-2026"))
+
+    def test_correo_desconocido_no_revela_nada(self):
+        respuesta = self.client.post(reverse("Home:password_reset"), {"email": "nadie@correo.com"})
+        self.assertRedirects(respuesta, reverse("Home:password_reset_done"))  # misma respuesta
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_enlace_alterado_no_es_valido(self):
+        respuesta = self.client.get(
+            reverse("Home:password_reset_confirm", args=["MQ", "token-falso"]), follow=True
+        )
+        self.assertFalse(respuesta.context["validlink"])
+
+    def test_login_ofrece_recuperar(self):
+        self.assertContains(self.client.get(reverse("Home:login")), reverse("Home:password_reset"))
+
+    def test_cambiar_password_con_sesion(self):
+        self.assertEqual(self.client.get(reverse("Home:password_change")).status_code, 302)  # requiere sesión
+        self.client.login(username="maria", password="Vieja-clave-1")
+        malo = self.client.post(reverse("Home:password_change"), {
+            "old_password": "incorrecta", "new_password1": "Otra-clave-2026", "new_password2": "Otra-clave-2026"})
+        self.assertEqual(malo.status_code, 200)  # la contraseña actual es obligatoria
+        ok = self.client.post(reverse("Home:password_change"), {
+            "old_password": "Vieja-clave-1", "new_password1": "Otra-clave-2026", "new_password2": "Otra-clave-2026"})
+        self.assertRedirects(ok, reverse("Home:password_change_done"))
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("Otra-clave-2026"))

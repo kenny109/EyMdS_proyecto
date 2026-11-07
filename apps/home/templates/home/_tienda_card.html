@@ -1,0 +1,27 @@
+{% load static %}
+{# Tarjeta de una tienda (MR-117). Uso: {% include 'home/_tienda_card.html' with t=tienda mapa=True %} #}
+<div class="lt-store" id="tienda-{{ t.id }}">
+    {% if t.foto %}
+        <img src="{{ t.foto.url }}" alt="{{ t.nombre }}" loading="lazy">
+    {% elif t.foto_estatica %}
+        <img src="{% static t.foto_estatica %}" alt="{{ t.nombre }}" loading="lazy">
+    {% else %}
+        <img src="{% static 'Home/img/sinfoto.png' %}" alt="" loading="lazy">
+    {% endif %}
+    <div class="lt-store-body">
+        <h5 class="fw-bold mb-1">{{ t.nombre }}</h5>
+        <p class="text-muted mb-0"><i class="bi bi-geo-alt"></i> {{ t.direccion }}</p>
+        {% if t.telefono %}<p class="text-muted small mb-0"><i class="bi bi-telephone"></i> {{ t.telefono }}</p>{% endif %}
+        <ul class="lt-hours">
+            <li><span>Lunes a viernes</span> {{ t.horario_semana }}</li>
+            <li><span>Sábados</span> {{ t.horario_sabado }}</li>
+            <li><span>Domingos</span> {{ t.horario_domingo }}</li>
+        </ul>
+        {% if mapa %}
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-sm btn-outline-dark btn-pill" data-ver-tienda="{{ t.id }}"><i class="bi bi-pin-map"></i> Ver en el mapa</button>
+            <a href="{{ t.como_llegar_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-lt btn-pill"><i class="bi bi-sign-turn-right"></i> Cómo llegar</a>
+        </div>
+        {% endif %}
+    </div>
+</div>

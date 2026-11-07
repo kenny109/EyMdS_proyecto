@@ -1,4 +1,4 @@
-{% load static %}
+{# Vista previa de tiendas en la página de inicio (MR-117). La pantalla completa está en home/tiendas_page.html #}
 <section class="lt-section pt-0" id="tiendas">
     <div class="container">
         <div class="lt-section-head">
@@ -6,50 +6,12 @@
                 <span class="lt-eyebrow">Visítanos</span>
                 <h2>Nuestras tiendas</h2>
             </div>
+            <a href="{% url 'Home:tiendas' %}" class="btn btn-link text-dark fw-semibold">Ver mapa y horarios <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="row g-3 g-md-4">
-            <div class="col-md-6 col-lg-4">
-                <div class="lt-store">
-                    <img src="{% static 'Home/img/local1.png' %}" alt="Tienda Santiago" loading="lazy">
-                    <div class="lt-store-body">
-                        <h5 class="fw-bold mb-1">Tienda Santiago</h5>
-                        <p class="text-muted mb-0"><i class="bi bi-geo-alt"></i> En pleno centro de Santiago</p>
-                        <ul class="lt-hours">
-                            <li><span>Lunes a viernes</span> 9:00 – 19:00</li>
-                            <li><span>Sábados</span> 10:00 – 18:00</li>
-                            <li><span>Domingos</span> 11:00 – 17:00</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="lt-store">
-                    <img src="{% static 'Home/img/local2.png' %}" alt="Tienda Puerto Montt" loading="lazy">
-                    <div class="lt-store-body">
-                        <h5 class="fw-bold mb-1">Tienda Puerto Montt</h5>
-                        <p class="text-muted mb-0"><i class="bi bi-geo-alt"></i> A pasos del puerto de la ciudad</p>
-                        <ul class="lt-hours">
-                            <li><span>Lunes a viernes</span> 8:30 – 19:00</li>
-                            <li><span>Sábados</span> 9:00 – 20:00</li>
-                            <li><span>Domingos</span> 10:00 – 17:00</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="lt-store">
-                    <img src="{% static 'Home/img/local3.png' %}" alt="Tienda Viña del Mar" loading="lazy">
-                    <div class="lt-store-body">
-                        <h5 class="fw-bold mb-1">Tienda Viña del Mar</h5>
-                        <p class="text-muted mb-0"><i class="bi bi-geo-alt"></i> En la costanera</p>
-                        <ul class="lt-hours">
-                            <li><span>Lunes a viernes</span> 8:30 – 22:30</li>
-                            <li><span>Sábados</span> 9:30 – 22:00</li>
-                            <li><span>Domingos</span> Cerrado</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+            {% for t in tiendas %}
+            <div class="col-md-6 col-lg-4">{% include 'home/_tienda_card.html' with t=t %}</div>
+            {% endfor %}
         </div>
     </div>
 </section>
