@@ -201,6 +201,7 @@ def _enviar_correos_reserva(reserva):
 # --------------------------------------------------------------------------- #
 @permission_required("carrito.view_reserva", raise_exception=True)
 def panel_reservas(request):
+    Reserva.vencer_pendientes()  # MR-121
     reservas = Reserva.objects.select_related("cliente__usuario").prefetch_related("detalles")
     estado = request.GET.get("estado", "")
     if estado in Reserva.Estado.values:

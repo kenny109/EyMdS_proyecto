@@ -1,9 +1,12 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_POST
 
 from carrito.models import Reserva
 from home.permissions import staff_required
@@ -80,6 +83,7 @@ def _cliente_de(request):
 
 @login_required
 def mi_cuenta(request: HttpRequest) -> HttpResponse:
+    Reserva.vencer_pendientes()  # MR-121
     cliente = _cliente_de(request)
     if request.method == "POST":
         form = PerfilClienteForm(request.POST, instance=request.user)
@@ -95,6 +99,7 @@ def mi_cuenta(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def mis_reservas(request: HttpRequest) -> HttpResponse:
+    Reserva.vencer_pendientes()  # MR-121
     cliente = _cliente_de(request)
     reservas = cliente.reservas.prefetch_related("detalles")
     return render(request, "usuarios/mis_reservas.html", {"reservas": reservas})
@@ -102,8 +107,32 @@ def mis_reservas(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def mi_reserva(request: HttpRequest, codigo: str) -> HttpResponse:
+    Reserva.vencer_pendientes()  # MR-121
     # Permiso (MR-116): un cliente solo puede ver sus propias reservas; las de otros dan 404.
     reserva = get_object_or_404(
         Reserva.objects.prefetch_related("detalles"), codigo=codigo, cliente__usuario=request.user
     )
     return render(request, "usuarios/mi_reserva.html", {"reserva": reserva})
+
+
+@require_POST
+@login_required
+def cancelar_mi_reserva(request: HttpRequest, codigo: str) -> HttpResponse:
+    """MR-121: el cliente cancela una reserva propia que siga pendiente y dentro de plazo."""
+    reserva = get_object_or_404(Reserva, codigo=codigo, cliente__usuario=request.user)
+    if not reserva.puede_cancelar_cliente:
+        messages.error(request, "Esta reserva ya no se puede cancelar.")
+        return redirect("usuarios:mi_reserva", codigo=codigo)
+    reserva.estado = Reserva.Estado.CANCELADA
+    reserva.save(update_fields=["estado", "actualizada"])
+    # Aviso a la tienda; si el correo falla, la cancelación igual queda registrada
+    send_mail(
+        f"Reserva {reserva.codigo} cancelada por el cliente",
+        f"El cliente {reserva.cliente} ({reserva.correo}) canceló la reserva {reserva.codigo} "
+        f"por ${reserva.total}. Ya no es necesario apartar sus productos.",
+        settings.DEFAULT_FROM_EMAIL,
+        [settings.STORE_EMAIL],
+        fail_silently=True,
+    )
+    messages.success(request, f"Cancelaste la reserva {reserva.codigo}.")
+    return redirect("usuarios:mi_reserva", codigo=codigo)

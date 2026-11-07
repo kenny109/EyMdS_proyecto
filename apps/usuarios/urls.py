@@ -14,4 +14,5 @@ urlpatterns = [
     path("mi-cuenta/", views.mi_cuenta, name="mi_cuenta"),
     path("mis-reservas/", views.mis_reservas, name="mis_reservas"),
     path("mis-reservas/<str:codigo>/", views.mi_reserva, name="mi_reserva"),
+    path("mis-reservas/<str:codigo>/cancelar/", views.cancelar_mi_reserva, name="cancelar_mi_reserva"),
 ]

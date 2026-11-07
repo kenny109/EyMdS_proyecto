@@ -53,6 +53,20 @@ class Reserva(models.Model):
             self.vence = (self.creada or timezone.now()) + PLAZO_RETIRO
         super().save(*args, **kwargs)
 
+    @classmethod
+    def vencer_pendientes(cls):
+        """MR-121: marca como vencidas las reservas pendientes cuyo plazo de 24 h ya pasó.
+        Devuelve cuántas cambió. Se llama al abrir el panel o las reservas del cliente,
+        y desde el comando `python manage.py vencer_reservas`."""
+        return cls.objects.filter(estado=cls.Estado.PENDIENTE, vence__lt=timezone.now()).update(
+            estado=cls.Estado.VENCIDA, actualizada=timezone.now()
+        )
+
+    @property
+    def puede_cancelar_cliente(self):
+        """MR-121: el cliente solo puede cancelar una reserva pendiente y dentro de plazo."""
+        return self.estado == self.Estado.PENDIENTE and not self.esta_vencida
+
     @property
     def esta_vencida(self):
         """Pendiente y con el plazo de 24 h cumplido (aún no marcada como vencida)."""

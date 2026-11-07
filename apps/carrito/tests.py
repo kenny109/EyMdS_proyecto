@@ -286,3 +286,52 @@ class RegistroReservasTest(TestCase):
             self._reservar()
         self.assertTrue(Reserva.objects.exists())
         self.assertEqual(profundidades, [base, base])
+
+
+# --------------------------------------------------------------------------- #
+#  MR-121: vencimiento automático y cancelación por el cliente
+# --------------------------------------------------------------------------- #
+from datetime import timedelta
+from io import StringIO
+
+from django.core.management import call_command
+from django.utils import timezone
+
+
+@override_settings(DEFAULT_FROM_EMAIL="tienda@lostios.cl", STORE_EMAIL="reservas@lostios.cl")
+class VencimientoYCancelacionTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user("cli", password="Clave-segura-9")
+        self.cliente = Cliente.objects.create(usuario=self.user)
+        self.vieja = Reserva.objects.create(cliente=self.cliente, correo="c@c.cl", creada=timezone.now() - timedelta(hours=25))
+        self.nueva = Reserva.objects.create(cliente=self.cliente, correo="c@c.cl")
+
+    def test_comando_vence_solo_las_pendientes_fuera_de_plazo(self):
+        salida = StringIO()
+        call_command("vencer_reservas", stdout=salida)
+        self.assertIn("1 reserva(s)", salida.getvalue())
+        self.vieja.refresh_from_db(); self.nueva.refresh_from_db()
+        self.assertEqual((self.vieja.estado, self.nueva.estado), (Reserva.Estado.VENCIDA, Reserva.Estado.PENDIENTE))
+
+    def test_abrir_mis_reservas_vence_automaticamente(self):
+        self.client.login(username="cli", password="Clave-segura-9")
+        self.client.get(reverse("usuarios:mis_reservas"))
+        self.vieja.refresh_from_db()
+        self.assertEqual(self.vieja.estado, Reserva.Estado.VENCIDA)
+
+    def test_cliente_cancela_su_reserva_y_avisa_a_la_tienda(self):
+        self.client.login(username="cli", password="Clave-segura-9")
+        self.client.post(reverse("usuarios:cancelar_mi_reserva", args=[self.nueva.codigo]))
+        self.nueva.refresh_from_db()
+        self.assertEqual(self.nueva.estado, Reserva.Estado.CANCELADA)
+        self.assertEqual(mail.outbox[-1].to, ["reservas@lostios.cl"])
+
+    def test_no_cancela_reservas_vencidas_ni_ajenas_ni_por_get(self):
+        otro = User.objects.create_user("otro", password="Clave-segura-8")
+        self.client.login(username="otro", password="Clave-segura-8")
+        self.assertEqual(self.client.post(reverse("usuarios:cancelar_mi_reserva", args=[self.nueva.codigo])).status_code, 404)
+        self.client.login(username="cli", password="Clave-segura-9")
+        self.assertEqual(self.client.get(reverse("usuarios:cancelar_mi_reserva", args=[self.nueva.codigo])).status_code, 405)
+        self.client.post(reverse("usuarios:cancelar_mi_reserva", args=[self.vieja.codigo]))
+        self.vieja.refresh_from_db()
+        self.assertNotEqual(self.vieja.estado, Reserva.Estado.CANCELADA)

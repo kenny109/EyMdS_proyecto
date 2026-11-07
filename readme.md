@@ -128,3 +128,16 @@ Esta versión introduce un sitio web funcional con visualización de productos y
 - **Permisos:** permiso nuevo `carrito.gestionar_reservas` y grupo **Vendedores** (ver y gestionar reservas) creado por migración. Un cliente solo puede ver sus propias reservas.
 - Zona horaria cambiada a `America/Santiago`.
 - Tras actualizar: `python manage.py migrate`. Pruebas: `python manage.py test carrito productos home usuarios` (50 pruebas).
+
+---
+
+### Release Notes - Versión 2.2.0
+
+#### Fecha: 7 de noviembre de 2026
+
+- **MR-117 (Perfectiva) – Pantalla propia de tiendas:** nueva tabla `home_tienda` editable desde el admin (nombre, dirección, horarios, teléfono, coordenadas, foto, activa/orden) y página `/home/tiendas/`. Una migración carga las 3 tiendas que antes estaban escritas en la plantilla.
+- **MR-118 (Perfectiva) – Minimapa de ubicaciones:** mapa interactivo con Leaflet 1.9.4 + OpenStreetMap (sin clave de API), un marcador por tienda, botón "Ver en el mapa" y enlace "Cómo llegar" a Google Maps.
+- **MR-119 (Perfectiva) – Recuperar y cambiar contraseña:** "¿Olvidaste tu contraseña?" envía un enlace por correo válido por 2 horas (no revela si el correo existe) y "Cambiar contraseña" para usuarios con sesión.
+- **MR-120 (Correctiva) – Stock de ventas:** el stock se descontaba en `clean()` (cada validación repetida descontaba otra vez) y no se devolvía al borrar/editar. Ahora se descuenta una sola vez al guardar, se ajusta al editar y se devuelve al borrar; un fallo del correo de stock bajo ya no impide registrar la venta.
+- **MR-121 (Perfectiva) – Vencimiento automático y cancelación:** las reservas pendientes con más de 24 h pasan solas a "Vencida" (y con `python manage.py vencer_reservas`); el cliente puede cancelar su reserva pendiente y la tienda recibe un aviso.
+- Tras actualizar: `python manage.py migrate`. Pruebas: `python manage.py test carrito productos home usuarios venta` (71 pruebas).
