@@ -1,9 +1,18 @@
-from django.db import models
+import logging
+import smtplib
+
+from django.db import models, transaction
+from django.db.models import F
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
+from productos.models import Productos
 from productos.views import enviar_notificacion_stock_bajo
+
+logger = logging.getLogger(__name__)
 
 class Vendedor(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name="vendedor")  
@@ -43,22 +52,66 @@ class VentaProducto(models.Model):
     def precio_por_cantidad(self):
         return self.producto.precio * self.cantidad
 
+    # ------------------------------------------------------------------ MR-120
+    # Antes el stock se descontaba dentro de clean() (la validación del formulario):
+    # cada validación repetida volvía a descontar y borrar/editar una venta no devolvía nada.
+    # Ahora clean() solo valida y el movimiento de stock ocurre una sola vez, al guardar.
+
+    def _cantidad_previa(self):
+        """Cantidad ya descontada de ESTE producto por esta línea (0 si es nueva o cambió de producto)."""
+        if not self.pk:
+            return 0
+        anterior = VentaProducto.objects.filter(pk=self.pk).values("producto_id", "cantidad").first()
+        if not anterior or anterior["producto_id"] != self.producto_id:
+            return 0
+        return anterior["cantidad"]
+
+    def clean(self):
+        if not self.cantidad:
+            raise ValidationError("No puedes vender 0 productos")
+        if self.producto_id is None:
+            return
+        adicional = self.cantidad - self._cantidad_previa()
+        if adicional > self.producto.cantidad:
+            raise ValidationError(
+                f"La cantidad solicitada es mayor al stock disponible ({self.producto.cantidad} unidades)"
+            )
+
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+        with transaction.atomic():
+            anterior = None
+            if self.pk:
+                anterior = VentaProducto.objects.select_for_update().filter(pk=self.pk).values(
+                    "producto_id", "cantidad").first()
+            if anterior and anterior["producto_id"] != self.producto_id:
+                # Cambió el producto: se devuelve el stock al anterior y se descuenta completo del nuevo
+                Productos.objects.filter(pk=anterior["producto_id"]).update(cantidad=F("cantidad") + anterior["cantidad"])
+                delta = self.cantidad
+            else:
+                delta = self.cantidad - (anterior["cantidad"] if anterior else 0)
+            super().save(*args, **kwargs)
+            if delta:
+                Productos.objects.filter(pk=self.producto_id).update(cantidad=F("cantidad") - delta)
+                self.producto.refresh_from_db(fields=["cantidad"])
+        if delta > 0:
+            self._avisar_stock_bajo()
         self.venta.actualizar_precio_total()
         self.venta.save()
+
+    def _avisar_stock_bajo(self):
+        umbral = self.producto.umbral_minimo
+        if umbral is not None and self.producto.cantidad <= umbral:
+            try:
+                enviar_notificacion_stock_bajo(self.producto)
+            except (smtplib.SMTPException, OSError):
+                # Un problema con el correo no debe impedir registrar la venta
+                logger.exception("No se pudo enviar el aviso de stock bajo de %s", self.producto)
 
     def __str__(self):
         return f'{self.venta.id} - {self.producto.nombre} - Cantidad: {self.cantidad}'
 
-    def clean(self):
-        if self.cantidad > self.producto.cantidad:
-            raise ValidationError("La cantidad solicitada es mayor al stock disponible")
-        elif self.cantidad == 0:
-            raise ValidationError("No puedes vender 0 productos")
-        else: 
-            self.producto.cantidad -= self.cantidad
-            self.producto.save()
-            umbral = self.producto.umbral_minimo
-            if umbral is not None and self.producto.cantidad <= umbral:
-                enviar_notificacion_stock_bajo(self.producto)
+
+@receiver(pre_delete, sender=VentaProducto)
+def devolver_stock(sender, instance, **kwargs):
+    """MR-120: al borrar una línea (o la venta completa) el stock vuelve al producto."""
+    Productos.objects.filter(pk=instance.producto_id).update(cantidad=F("cantidad") + instance.cantidad)
